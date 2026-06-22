@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Power Map Australia</title>
+  <meta name="description" content="Mapping political donations, business interests, policy alignment and public benefit in Australia." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="#top">Power Map Australia</a>
+      <div class="nav-links">
+        <a href="#explorer">Explorer</a>
+        <a href="#method">Method</a>
+        <a href="#sources">Sources</a>
+      </div>
+    </nav>
+    <section id="top" class="hero">
+      <div>
+        <p class="eyebrow">Public-interest transparency project</p>
+        <h1>Follow the money. Understand the incentives. Judge the outcomes.</h1>
+        <p class="lead">A source-linked map of Australian political donations, business interests, policy alignment, and possible public benefit or public cost.</p>
+        <div class="actions">
+          <a class="button" href="#explorer">Open the explorer</a>
+          <a class="button ghost" href="#method">Read the method</a>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <strong>Legal standard</strong>
+        <p>This site avoids unsupported claims of bribery or corruption. It documents disclosed donations, ownership interests, policy exposure and reasonable conflict-of-interest questions.</p>
+      </aside>
+    </section>
+  </header>
+
+  <main>
+    <section class="section intro-grid">
+      <article>
+        <h2>What this tracks</h2>
+        <p>Political power is not only about speeches. It is also about incentives: who pays, who lobbies, who owns assets, what policies change, and who benefits.</p>
+      </article>
+      <article>
+        <h2>What this does not claim</h2>
+        <p>A donation is not proof that policy was bought. A business interest is not proof of wrongdoing. The purpose is to show relationships and let evidence do the work.</p>
+      </article>
+    </section>
+
+    <section id="explorer" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Explorer</p>
+        <h2>Profiles</h2>
+      </div>
+      <div class="filters">
+        <input id="search" type="search" placeholder="Search donor, party, industry, policy..." />
+        <select id="industryFilter"><option value="">All industries</option></select>
+        <select id="partyFilter"><option value="">All parties</option></select>
+      </div>
+      <div id="cards" class="cards"></div>
+    </section>
+
+    <section id="profile" class="section profile hidden"></section>
+
+    <section id="method" class="section method">
+      <p class="eyebrow">Method</p>
+      <h2>How each profile is assessed</h2>
+      <div class="method-grid">
+        <div><h3>1. Donations</h3><p>Use official AEC disclosure data where available. Record donor name, recipient, amount, year and source.</p></div>
+        <div><h3>2. Interests</h3><p>Map major ownership, corporate control, industries and assets from public filings, annual reports and reliable reporting.</p></div>
+        <div><h3>3. Policy alignment</h3><p>Identify policies that plausibly affect those interests: tax, regulation, approvals, migration, defence, energy and procurement.</p></div>
+        <div><h3>4. Australia test</h3><p>Separate claimed public benefits from possible public costs. Jobs and tax count. So do subsidies, externalities and concentration of influence.</p></div>
+      </div>
+      <div class="notice"><strong>Wording rule:</strong> use “may benefit”, “has exposure to”, “policy alignment”, “raises conflict-of-interest questions”. Avoid “bribery”, “bought policy”, or “corrupt” unless a court, regulator or primary evidence establishes it.</div>
+    </section>
+
+    <section id="sources" class="section sources">
+      <p class="eyebrow">Primary sources</p>
+      <h2>Data sources to build from</h2>
+      <ul>
+        <li><a href="https://transparency.aec.gov.au/" target="_blank" rel="noreferrer">AEC Transparency Register</a> — political financial disclosure register.</li>
+        <li><a href="https://transparency.aec.gov.au/Download" target="_blank" rel="noreferrer">AEC Download All Disclosure Data</a> — downloadable CSV/ZIP data.</li>
+        <li><a href="https://theyvoteforyou.org.au/" target="_blank" rel="noreferrer">They Vote For You</a> — federal parliamentary voting records.</li>
+        <li><a href="https://www.openaustralia.org.au/" target="_blank" rel="noreferrer">OpenAustralia</a> — parliament information and records.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Power Map Australia is a civic transparency prototype. Verify every profile before publication.</p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
