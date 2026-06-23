@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Mapping Australian political donations, business interests, policy alignment and public benefit." />
+  <title>Power Map Australia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #0D1117;
+      --steel:     #1E3A5F;
+      --steel-mid: #2A4F7A;
+      --gold:      #F5C400;
+      --gold-dim:  #C49B00;
+      --surface:   #131920;
+      --card:      #18222E;
+      --border:    #243141;
+      --text:      #F0F4F8;
+      --muted:     #8A9BB0;
+      --danger:    #E05252;
+      --safe:      #4CAF7D;
+      --mono:      'JetBrains Mono', monospace;
+      --serif:     'Playfair Display', Georgia, serif;
+      --sans:      'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,17,23,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 56px;
+    }
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 6rem 2rem 5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.12;
+      color: var(--text);
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--gold);
+    }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin-bottom: 2.2rem;
+      line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border-radius: 3px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary { background: var(--gold); color: var(--ink); }
+    .btn-primary:hover { background: #ffd600; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+    .hero-caveat {
+      margin-top: 2.5rem;
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      padding: 0.9rem 1.2rem;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      max-width: 580px;
+      line-height: 1.55;
+    }
+    .caveat-icon { color: var(--gold); font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.2rem 2rem;
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: var(--mono);
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--gold);
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    section { padding: 4rem 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-head {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+    .section-head h2 {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ── FILTERS ── */
+    .filters {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .filter-select {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
+      font-family: var(--sans);
+      border-radius: 3px;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A9BB0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      transition: border-color 0.2s;
+    }
+    .filter-select:focus { outline: none; border-color: var(--gold); }
+    .filter-search {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
+      font-family: var(--sans);
+      border-radius: 3px;
+      width: 200px;
+      transition: border-color 0.2s;
+    }
+    .filter-search::placeholder { color: var(--muted); }
+    .filter-search:focus { outline: none; border-color: var(--gold); }
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
+      font-family: var(--sans);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-reset:hover { color: var(--text); border-color: var(--muted); }
+
+    /* ── PROFILE GRID ── */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── PROFILE CARD ── */
+    .profile-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s;
+    }
+    .profile-card:hover { border-color: var(--steel-mid); transform: translateY(-2px); }
+    .profile-card:hover::before { transform: scaleX(1); }
+
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+    .card-name {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .risk-badge {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .risk-high { background: rgba(224,82,82,0.15); color: var(--danger); border: 1px solid rgba(224,82,82,0.3); }
+    .risk-medium { background: rgba(245,196,0,0.12); color: var(--gold); border: 1px solid rgba(245,196,0,0.3); }
+
+    .card-type {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    .card-summary {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .card-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .tag {
+      font-size: 0.68rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 2px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+    .tag-industry { background: rgba(30,58,95,0.6); color: #7EB8F7; border: 1px solid rgba(30,58,95,0.8); }
+    .tag-party { background: rgba(76,175,125,0.1); color: var(--safe); border: 1px solid rgba(76,175,125,0.25); }
+
+    /* ── POWER BAR — signature element ── */
+    .power-bar-wrap { }
+    .power-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+    .power-bar {
+      height: 5px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      display: flex;
+    }
+    .power-bar-benefit {
+      background: var(--safe);
+      transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .power-bar-cost {
+      background: var(--danger);
+      transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .card-policy-count { font-family: var(--mono); }
+    .card-link {
+      color: var(--gold);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      font-size: 0.72rem;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+      display: none;
+    }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      overflow-y: auto;
+      padding: 2rem 1rem;
+    }
+    .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      max-width: 760px;
+      width: 100%;
+      padding: 2.5rem;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { color: var(--text); border-color: var(--muted); }
+    .modal-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .modal-title {
+      font-family: var(--serif);
+      font-size: 1.65rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .modal-type {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .modal-summary {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 560px) { .modal-grid { grid-template-columns: 1fr; } }
+
+    .modal-section-title {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+    .modal-list { list-style: none; }
+    .modal-list li {
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 0.3rem 0;
+      border-bottom: 1px solid rgba(36,49,65,0.5);
+      padding-left: 1rem;
+      position: relative;
+    }
+    .modal-list li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: var(--border);
+    }
+    .benefit-list li::before { content: '+'; color: var(--safe); }
+    .cost-list li::before { content: '−'; color: var(--danger); }
+
+    .modal-power-bar-wrap { margin-bottom: 2rem; }
+    .modal-power-bar {
+      height: 10px;
+      border-radius: 3px;
+      background: var(--border);
+      overflow: hidden;
+      display: flex;
+      margin-top: 0.5rem;
+    }
+    .modal-power-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .modal-policy-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 2rem; }
+    .policy-tag {
+      font-size: 0.72rem;
+      padding: 0.3rem 0.7rem;
+      background: rgba(30,58,95,0.4);
+      color: #7EB8F7;
+      border: 1px solid rgba(30,58,95,0.8);
+      border-radius: 2px;
+      font-family: var(--mono);
+    }
+
+    .modal-donations {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .donation-notice {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .donation-notice a { color: var(--gold); text-decoration: none; }
+    .donation-notice a:hover { text-decoration: underline; }
+    .donation-verify {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--danger);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+      display: inline-block;
+    }
+
+    .modal-sources { }
+    .source-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--gold);
+      text-decoration: none;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: opacity 0.2s;
+    }
+    .source-link:hover { opacity: 0.75; }
+    .source-link span { color: var(--muted); font-size: 0.68rem; margin-left: auto; }
+
+    /* ── METHOD SECTION ── */
+    .method-section { background: var(--surface); }
+    .method-steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+    .method-step {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      background: var(--card);
+    }
+    .step-num {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.6rem;
+    }
+    .step-title {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .step-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+
+    /* ── SCORE SECTION ── */
+    .score-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 600px) { .score-cols { grid-template-columns: 1fr; } }
+    .score-col { }
+    .score-col-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid;
+    }
+    .score-col.benefit .score-col-title { color: var(--safe); border-color: var(--safe); }
+    .score-col.cost .score-col-title { color: var(--danger); border-color: var(--danger); }
+    .score-items { list-style: none; }
+    .score-items li {
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .score-icon { font-size: 0.85rem; }
+
+    /* ── SOURCES SECTION ── */
+    .sources-section { background: var(--surface); }
+    .sources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .source-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.25rem;
+    }
+    .source-card-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+    .source-card-use { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
+    .source-card-link {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .source-card-link:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+    .footer-text { font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
+    .footer-text a { color: var(--gold); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      nav { padding: 0 1rem; }
+      .nav-links { gap: 1.2rem; }
+      .hero { padding: 3.5rem 1.25rem 3rem; }
+      section { padding: 3rem 1.25rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="top">
+  <a href="#top" class="nav-logo">Power Map Australia</a>
+  <ul class="nav-links">
+    <li><a href="#explorer">Explorer</a></li>
+    <li><a href="#method">Method</a></li>
+    <li><a href="#score">Benefit test</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <p class="hero-eyebrow">Australian public-interest transparency project</p>
+  <h1>Follow the money.<br>Understand the <em>incentives.</em><br>Judge the outcomes.</h1>
+  <p class="hero-sub">A searchable map of disclosed political donations, corporate interests, policy exposure, and possible public benefit or public cost.</p>
+  <div class="hero-actions">
+    <a href="#explorer" class="btn btn-primary">Open explorer →</a>
+    <a href="#method" class="btn btn-ghost">Read methodology</a>
+  </div>
+  <div class="hero-caveat">
+    <span class="caveat-icon">⚖</span>
+    <span><strong style="color:var(--text)">Evidence standard:</strong> Donation ≠ corruption. Investment ≠ wrongdoing. This site documents relationships and asks conflict-of-interest questions using public sources only.</span>
+  </div>
+</header>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat">
+    <span class="stat-num" id="stat-profiles">0</span>
+    <span class="stat-label">Profiles</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">6</span>
+    <span class="stat-label">Policy areas</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" id="stat-industries">0</span>
+    <span class="stat-label">Industries tracked</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">0</span>
+    <span class="stat-label">Unsupported allegations</span>
+  </div>
+</div>
+
+<!-- EXPLORER -->
+<section id="explorer">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <p class="section-label">Profiles database</p>
+        <h2>Explorer</h2>
+      </div>
+    </div>
+
+    <div class="filters">
+      <input type="text" class="filter-search" id="filter-search" placeholder="Search name or industry…" />
+      <select class="filter-select" id="filter-industry">
+        <option value="">All industries</option>
+      </select>
+      <select class="filter-select" id="filter-party">
+        <option value="">All parties</option>
+      </select>
+      <select class="filter-select" id="filter-risk">
+        <option value="">All risk levels</option>
+        <option value="High">High relevance</option>
+        <option value="Medium">Medium relevance</option>
+      </select>
+      <button class="btn-reset" id="btn-reset">Reset filters</button>
+    </div>
+
+    <div class="profile-grid" id="profile-grid"></div>
+    <div class="empty-state" id="empty-state">
+      <p>No profiles match the current filters.</p>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section id="method" class="method-section">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <p class="section-label">Methodology</p>
+        <h2>How profiles are built</h2>
+      </div>
+    </div>
+    <div class="method-steps">
+      <div class="method-step">
+        <p class="step-num">STEP 01</p>
+        <p class="step-title">Disclosed money</p>
+        <p class="step-desc">Start with AEC disclosure data. Record donor, recipient, amount, date/year and source URL for every reportable donation.</p>
+      </div>
+      <div class="method-step">
+        <p class="step-num">STEP 02</p>
+        <p class="step-title">Business interests</p>
+        <p class="step-desc">Map companies, ownership, industries, investments, government contracts and policy exposure using ASIC, AusTender and public filings.</p>
+      </div>
+      <div class="method-step">
+        <p class="step-num">STEP 03</p>
+        <p class="step-title">Policy alignment</p>
+        <p class="step-desc">Identify policies that plausibly affect those interests: tax, approvals, energy, migration, defence, procurement and industrial relations.</p>
+      </div>
+      <div class="method-step">
+        <p class="step-num">STEP 04</p>
+        <p class="step-title">Benefit test</p>
+        <p class="step-desc">Balance public benefits against public costs. Jobs and tax matter. So do subsidies, environmental costs, housing pressure and influence concentration.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCORE -->
+<section id="score">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <p class="section-label">Scoring model</p>
+        <h2>Australia benefit test</h2>
+      </div>
+    </div>
+    <div class="score-cols">
+      <div class="score-col benefit">
+        <p class="score-col-title">Public benefit indicators</p>
+        <ul class="score-items">
+          <li><span class="score-icon">+</span> Local jobs and wages</li>
+          <li><span class="score-icon">+</span> Tax and royalties paid</li>
+          <li><span class="score-icon">+</span> Productive infrastructure</li>
+          <li><span class="score-icon">+</span> Export earnings</li>
+          <li><span class="score-icon">+</span> Innovation or capability</li>
+        </ul>
+      </div>
+      <div class="score-col cost">
+        <p class="score-col-title">Public cost indicators</p>
+        <ul class="score-items">
+          <li><span class="score-icon">−</span> Subsidies and procurement risk</li>
+          <li><span class="score-icon">−</span> Environmental externalities</li>
+          <li><span class="score-icon">−</span> Housing or migration pressure</li>
+          <li><span class="score-icon">−</span> Market concentration</li>
+          <li><span class="score-icon">−</span> Political influence imbalance</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section id="sources" class="sources-section">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <p class="section-label">Source base</p>
+        <h2>Primary sources</h2>
+      </div>
+    </div>
+    <div class="sources-grid" id="sources-grid"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-text">
+    Power Map Australia is a civic transparency prototype.<br />
+    All profiles use public sources only. Verify every claim before acting on it.<br />
+    Donation ≠ corruption. Policy alignment ≠ wrongdoing.<br />
+    <a href="https://transparency.aec.gov.au/" target="_blank" rel="noopener">AEC Transparency Register</a> · <a href="https://www.tenders.gov.au/" target="_blank" rel="noopener">AusTender</a> · <a href="https://asic.gov.au/" target="_blank" rel="noopener">ASIC</a>
+  </p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DATA = {
+  "profiles": [
+    {
+      "id": "gina-rinehart-hancock",
+      "name": "Gina Rinehart / Hancock Prospecting",
+      "type": "Individual + private company",
+      "industries": ["Mining","Energy","Agriculture","Media influence"],
+      "parties": ["Liberal","National","One Nation"],
+      "riskLevel": "High public-interest relevance",
+      "summary": "Australia's most prominent private mining fortune. Profile focuses on disclosed political support, resource-sector policy exposure, energy and climate policy alignment, and public benefit versus public cost.",
+      "interests": ["Iron ore and resources","Pastoral and cattle assets","Energy and resource approvals","Media and advocacy influence"],
+      "policyAreas": ["Resource taxation","Mining approvals","Net zero and energy policy","Industrial relations","Migration and labour supply"],
+      "publicBenefits": ["Export income","Regional jobs","Royalties and company tax when payable","Infrastructure linked to resource projects"],
+      "publicCosts": ["Environmental externalities","Concentration of political influence","Regulatory capture risk","Policy outcomes that may privilege private gain over public interest"],
+      "benefitScore": 40,
+      "costScore": 60,
+      "donations": [{"year":"VERIFY","recipient":"VERIFY FROM AEC","amount":"VERIFY","source":"https://transparency.aec.gov.au/"}],
+      "sources": [{"label":"AEC Transparency Register","url":"https://transparency.aec.gov.au/"},{"label":"Hancock Prospecting","url":"https://www.hancockprospecting.com.au/"}]
+    },
+    {
+      "id": "clive-palmer-mineralogy",
+      "name": "Clive Palmer / Mineralogy / UAP",
+      "type": "Individual + company + political party founder",
+      "industries": ["Mining","Politics","Media advertising"],
+      "parties": ["United Australia Party"],
+      "riskLevel": "High direct political relevance",
+      "summary": "Profile focuses on the overlap between private resource interests, election spending, party control, and policy messaging.",
+      "interests": ["Mineralogy and resource projects","Political advertising","Party financing and campaign infrastructure"],
+      "policyAreas": ["Mining approvals","Tax and regulation","Electoral advertising rules","Government contracts and litigation"],
+      "publicBenefits": ["Resource-sector employment where projects proceed","Political participation and competition"],
+      "publicCosts": ["Large private election spending may distort democratic equality","Potential conflicts between business interests and party messaging"],
+      "benefitScore": 25,
+      "costScore": 75,
+      "donations": [{"year":"VERIFY","recipient":"United Australia Party / related entities","amount":"VERIFY","source":"https://transparency.aec.gov.au/"}],
+      "sources": [{"label":"AEC Transparency Register","url":"https://transparency.aec.gov.au/"}]
+    },
+    {
+      "id": "andrew-forrest-fortescue",
+      "name": "Andrew Forrest / Fortescue",
+      "type": "Individual + listed company founder",
+      "industries": ["Mining","Green hydrogen","Energy transition","Philanthropy"],
+      "parties": ["Liberal","Labor","Other disclosed recipients"],
+      "riskLevel": "High policy exposure",
+      "summary": "Profile focuses on iron ore, energy transition policy, green hydrogen incentives, philanthropy, and public-private benefit alignment.",
+      "interests": ["Iron ore","Fortescue shareholding/influence","Green hydrogen and clean energy investment","Philanthropic foundations"],
+      "policyAreas": ["Resource taxation","Clean energy subsidies","Hydrogen policy","Environmental regulation","International trade"],
+      "publicBenefits": ["Exports and jobs","Potential clean-energy investment","Technology development","Philanthropic public benefits"],
+      "publicCosts": ["Public subsidy risk","Land use and environmental impact","Private gain from public energy transition funding"],
+      "benefitScore": 55,
+      "costScore": 45,
+      "donations": [{"year":"VERIFY","recipient":"VERIFY FROM AEC","amount":"VERIFY","source":"https://transparency.aec.gov.au/"}],
+      "sources": [{"label":"AEC Transparency Register","url":"https://transparency.aec.gov.au/"},{"label":"Fortescue","url":"https://www.fortescue.com/"}]
+    },
+    {
+      "id": "anthony-pratt-visy",
+      "name": "Anthony Pratt / Visy / Pratt Industries",
+      "type": "Individual + private packaging group",
+      "industries": ["Packaging","Manufacturing","Recycling","Paper"],
+      "parties": ["Liberal","Labor","Other disclosed recipients"],
+      "riskLevel": "Medium-high policy exposure",
+      "summary": "Profile focuses on manufacturing policy, recycling regulation, energy costs, industrial relations, and donation transparency.",
+      "interests": ["Packaging and paper manufacturing","Recycling infrastructure","Energy-intensive industry","US and Australian business footprint"],
+      "policyAreas": ["Manufacturing policy","Energy prices","Recycling rules","Industrial relations","Trade"],
+      "publicBenefits": ["Manufacturing jobs","Recycling capacity","Export and domestic supply chains"],
+      "publicCosts": ["Regulatory influence risk","Energy subsidy questions","Market concentration issues"],
+      "benefitScore": 50,
+      "costScore": 50,
+      "donations": [{"year":"VERIFY","recipient":"VERIFY FROM AEC","amount":"VERIFY","source":"https://transparency.aec.gov.au/"}],
+      "sources": [{"label":"AEC Transparency Register","url":"https://transparency.aec.gov.au/"},{"label":"Visy","url":"https://www.visy.com/"}]
+    },
+    {
+      "id": "property-council-donor-cluster",
+      "name": "Property sector donor cluster",
+      "type": "Industry cluster",
+      "industries": ["Property","Construction","Real estate"],
+      "parties": ["Labor","Liberal","National","State parties"],
+      "riskLevel": "High public-interest relevance",
+      "summary": "Tracks property developers, construction interests and industry bodies against housing, planning, migration, tax and infrastructure policy.",
+      "interests": ["Land values","Planning approvals","Housing supply","Construction demand","Infrastructure corridors"],
+      "policyAreas": ["Planning approvals","Negative gearing and CGT settings","Migration and population growth","Infrastructure spending","Rental regulation"],
+      "publicBenefits": ["Housing construction","Jobs in construction","Urban infrastructure"],
+      "publicCosts": ["Housing affordability pressure","Developer influence over planning","Private uplift from public infrastructure"],
+      "benefitScore": 35,
+      "costScore": 65,
+      "donations": [{"year":"VERIFY","recipient":"VERIFY FROM AEC / state disclosures","amount":"VERIFY","source":"https://transparency.aec.gov.au/"}],
+      "sources": [{"label":"AEC Transparency Register","url":"https://transparency.aec.gov.au/"}]
+    },
+    {
+      "id": "defence-industry-cluster",
+      "name": "Defence industry donor / contractor cluster",
+      "type": "Industry cluster",
+      "industries": ["Defence","Aerospace","Technology","Shipbuilding"],
+      "parties": ["Labor","Liberal","National"],
+      "riskLevel": "High procurement relevance",
+      "summary": "Tracks defence contractors and defence-linked investors against procurement, war powers, export controls and foreign-policy incentives.",
+      "interests": ["Defence procurement","Aerospace and weapons systems","Cyber and surveillance technology","Naval and shipbuilding contracts"],
+      "policyAreas": ["Defence spending","AUKUS","Export controls","Foreign policy","Procurement rules"],
+      "publicBenefits": ["National security capability","Skilled manufacturing jobs","Technology transfer"],
+      "publicCosts": ["War-profiteering risk","Procurement waste","Foreign policy capture risk","Civil-liberties concerns around surveillance tech"],
+      "benefitScore": 45,
+      "costScore": 55,
+      "donations": [{"year":"VERIFY","recipient":"VERIFY FROM AEC","amount":"VERIFY","source":"https://transparency.aec.gov.au/"}],
+      "sources": [{"label":"AEC Transparency Register","url":"https://transparency.aec.gov.au/"},{"label":"AusTender","url":"https://www.tenders.gov.au/"}]
+    }
+  ],
+  "sources": [
+    {"name":"AEC Transparency Register","url":"https://transparency.aec.gov.au/","use":"Political donations and annual returns"},
+    {"name":"AEC bulk downloads","url":"https://transparency.aec.gov.au/Download","use":"Downloadable disclosure data"},
+    {"name":"They Vote For You","url":"https://theyvoteforyou.org.au/","use":"Federal voting records"},
+    {"name":"OpenAustralia","url":"https://www.openaustralia.org.au/","use":"Parliament records"},
+    {"name":"AusTender","url":"https://www.tenders.gov.au/","use":"Government contracts"},
+    {"name":"ASIC registers","url":"https://asic.gov.au/","use":"Company records and business names"}
+  ]
+};
+
+// ── RENDER HELPERS ────────────────────────────────────────────────────────────
+function riskClass(r) {
+  return r.toLowerCase().includes('medium') ? 'risk-medium' : 'risk-high';
+}
+
+function riskShort(r) {
+  if (r.toLowerCase().includes('medium')) return 'Medium';
+  return 'High';
+}
+
+function powerBar(b, c, height='5px') {
+  const total = b + c;
+  const bp = total ? Math.round((b/total)*100) : 50;
+  const cp = 100 - bp;
+  return `<div class="power-bar" style="height:${height}">
+    <div class="power-bar-benefit" style="width:${bp}%"></div>
+    <div class="power-bar-cost" style="width:${cp}%"></div>
+  </div>`;
+}
+
+function renderCard(p) {
+  const tags = [
+    ...p.industries.slice(0,3).map(i => `<span class="tag tag-industry">${i}</span>`),
+    ...p.parties.slice(0,2).map(pt => `<span class="tag tag-party">${pt}</span>`)
+  ].join('');
+
+  return `<div class="profile-card" data-id="${p.id}" tabindex="0" role="button" aria-label="View profile: ${p.name}">
+    <div class="card-top">
+      <span class="card-name">${p.name}</span>
+      <span class="risk-badge ${riskClass(p.riskLevel)}">${riskShort(p.riskLevel)}</span>
+    </div>
+    <p class="card-type">${p.type}</p>
+    <p class="card-summary">${p.summary.slice(0,120)}…</p>
+    <div class="card-tags">${tags}</div>
+    <div class="power-bar-wrap">
+      <div class="power-bar-label"><span>Public benefit</span><span>Public cost</span></div>
+      ${powerBar(p.benefitScore || 50, p.costScore || 50)}
+    </div>
+    <div class="card-footer">
+      <span class="card-policy-count">${p.policyAreas.length} policy areas</span>
+      <span class="card-link">View profile →</span>
+    </div>
+  </div>`;
+}
+
+function renderModal(p) {
+  const total = (p.benefitScore||50) + (p.costScore||50);
+  const bp = Math.round(((p.benefitScore||50)/total)*100);
+  const cp = 100 - bp;
+
+  const benefits = p.publicBenefits.map(b => `<li>${b}</li>`).join('');
+  const costs = p.publicCosts.map(c => `<li>${c}</li>`).join('');
+  const interests = p.interests.map(i => `<li>${i}</li>`).join('');
+  const policies = p.policyAreas.map(a => `<span class="policy-tag">${a}</span>`).join('');
+  const sources = p.sources.map(s => `<a class="source-link" href="${s.url}" target="_blank" rel="noopener">${s.label} <span>↗</span></a>`).join('');
+
+  return `
+    <p class="modal-eyebrow">${p.type}</p>
+    <h2 class="modal-title">${p.name}</h2>
+    <p class="modal-type"><span class="risk-badge ${riskClass(p.riskLevel)}">${p.riskLevel}</span></p>
+    <p class="modal-summary">${p.summary}</p>
+
+    <div class="modal-power-bar-wrap">
+      <div class="modal-power-label"><span>Public benefit (${bp}%)</span><span>Public cost (${cp}%)</span></div>
+      <div class="modal-power-bar">
+        <div class="power-bar-benefit" style="width:${bp}%"></div>
+        <div class="power-bar-cost" style="width:${cp}%"></div>
+      </div>
+    </div>
+
+    <div class="modal-grid">
+      <div>
+        <p class="modal-section-title">Business interests</p>
+        <ul class="modal-list">${interests}</ul>
+      </div>
+      <div>
+        <p class="modal-section-title">Policy areas</p>
+        <div class="modal-policy-tags">${policies}</div>
+      </div>
+      <div>
+        <p class="modal-section-title">Public benefits</p>
+        <ul class="modal-list benefit-list">${benefits}</ul>
+      </div>
+      <div>
+        <p class="modal-section-title">Public costs / risks</p>
+        <ul class="modal-list cost-list">${costs}</ul>
+      </div>
+    </div>
+
+    <div class="modal-donations">
+      <p class="modal-section-title">Donation disclosure</p>
+      <p class="donation-notice">
+        Donation figures require direct verification from the <a href="https://transparency.aec.gov.au/" target="_blank" rel="noopener">AEC Transparency Register</a>.
+        This profile notes disclosed relationships only — amounts and recipients must be verified before publication.
+      </p>
+      <span class="donation-verify">⚠ Verify amounts at AEC before publishing</span>
+    </div>
+
+    <div class="modal-sources">
+      <p class="modal-section-title">Sources</p>
+      ${sources}
+    </div>
+  `;
+}
+
+// ── FILTERS & RENDER ──────────────────────────────────────────────────────────
+let allProfiles = DATA.profiles;
+let activeFilters = { search: '', industry: '', party: '', risk: '' };
+
+function populateFilters() {
+  const industries = [...new Set(allProfiles.flatMap(p => p.industries))].sort();
+  const parties = [...new Set(allProfiles.flatMap(p => p.parties))].sort();
+  const indSel = document.getElementById('filter-industry');
+  const ptySel = document.getElementById('filter-party');
+  industries.forEach(i => { const o = document.createElement('option'); o.value=i; o.textContent=i; indSel.appendChild(o); });
+  parties.forEach(p => { const o = document.createElement('option'); o.value=p; o.textContent=p; ptySel.appendChild(o); });
+}
+
+function applyFilters() {
+  const { search, industry, party, risk } = activeFilters;
+  return allProfiles.filter(p => {
+    if (search && !p.name.toLowerCase().includes(search) && !p.industries.join(' ').toLowerCase().includes(search)) return false;
+    if (industry && !p.industries.includes(industry)) return false;
+    if (party && !p.parties.includes(party)) return false;
+    if (risk && !p.riskLevel.toLowerCase().includes(risk.toLowerCase())) return false;
+    return true;
+  });
+}
+
+function render() {
+  const filtered = applyFilters();
+  const grid = document.getElementById('profile-grid');
+  const empty = document.getElementById('empty-state');
+  grid.innerHTML = filtered.map(renderCard).join('');
+  empty.style.display = filtered.length ? 'none' : 'block';
+
+  // Bind card events
+  grid.querySelectorAll('.profile-card').forEach(card => {
+    const open = () => openModal(card.dataset.id);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
+  });
+}
+
+// ── SOURCES RENDER ────────────────────────────────────────────────────────────
+function renderSources() {
+  document.getElementById('sources-grid').innerHTML = DATA.sources.map(s => `
+    <div class="source-card">
+      <p class="source-card-name">${s.name}</p>
+      <p class="source-card-use">${s.use}</p>
+      <a class="source-card-link" href="${s.url}" target="_blank" rel="noopener">${s.url} ↗</a>
+    </div>
+  `).join('');
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats() {
+  document.getElementById('stat-profiles').textContent = allProfiles.length;
+  const industries = new Set(allProfiles.flatMap(p => p.industries));
+  document.getElementById('stat-industries').textContent = industries.size;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(id) {
+  const profile = allProfiles.find(p => p.id === id);
+  if (!profile) return;
+  document.getElementById('modal-content').innerHTML = renderModal(profile);
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  populateFilters();
+  renderStats();
+  render();
+  renderSources();
+
+  document.getElementById('filter-search').addEventListener('input', e => {
+    activeFilters.search = e.target.value.toLowerCase().trim();
+    render();
+  });
+  document.getElementById('filter-industry').addEventListener('change', e => {
+    activeFilters.industry = e.target.value;
+    render();
+  });
+  document.getElementById('filter-party').addEventListener('change', e => {
+    activeFilters.party = e.target.value;
+    render();
+  });
+  document.getElementById('filter-risk').addEventListener('change', e => {
+    activeFilters.risk = e.target.value;
+    render();
+  });
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    activeFilters = { search: '', industry: '', party: '', risk: '' };
+    document.getElementById('filter-search').value = '';
+    document.getElementById('filter-industry').value = '';
+    document.getElementById('filter-party').value = '';
+    document.getElementById('filter-risk').value = '';
+    render();
+  });
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+});
+</script>
+</body>
+</html>
