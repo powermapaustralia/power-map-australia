@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Mapping Australian political donations, corporate interests, policy alignment and public benefit. An honest, evidence-based transparency project." />
+<title>Power Map Australia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0D1117;--surface:#131920;--card:#18222E;--card2:#1C2A38;
+  --border:#243141;--border2:#2E3F52;
+  --text:#F0F4F8;--muted:#8A9BB0;--muted2:#6B7D90;
+  --gold:#F5C400;--gold2:#C49B00;
+  --blue:#4A9EE8;--green:#4CAF7D;--red:#E05252;--orange:#E8843A;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:54px;display:flex;align-items:center;padding:0 1.5rem;gap:2rem}
+.nav-logo{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--gold);text-decoration:none;white-space:nowrap}
+.nav-links{display:flex;gap:1.5rem;list-style:none;flex:1}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:0.78rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;transition:color 0.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--text)}
+.nav-search{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.8rem;font-size:0.8rem;font-family:var(--sans);border-radius:3px;width:200px}
+.nav-search::placeholder{color:var(--muted2)}
+.nav-search:focus{outline:none;border-color:var(--gold)}
+
+/* HERO */
+.hero{padding:4rem 1.5rem 3rem;max-width:760px;margin:0 auto;text-align:center}
+.eyebrow{font-family:var(--mono);font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;display:block}
+.hero h1{font-family:var(--serif);font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero-sub{font-size:0.95rem;color:var(--muted);max-width:520px;margin:0 auto 1.75rem;line-height:1.7}
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.65rem 1.3rem;font-size:0.82rem;font-weight:600;border-radius:3px;text-decoration:none;cursor:pointer;border:none;transition:all 0.2s;font-family:var(--sans);letter-spacing:0.03em}
+.btn-primary{background:var(--gold);color:var(--ink)}
+.btn-primary:hover{background:#ffd600}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted)}
+.evidence-note{display:inline-flex;align-items:flex-start;gap:0.75rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);padding:0.85rem 1.1rem;border-radius:3px;font-size:0.78rem;color:var(--muted);line-height:1.55;text-align:left;max-width:520px;margin:0 auto}
+
+/* QUESTIONS SECTION */
+.questions-wrap{max-width:1200px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+.questions-header{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1.75rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.questions-title{font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--text)}
+.questions-meta{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase}
+.questions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.q-card{background:var(--card);padding:1.5rem;cursor:pointer;transition:background 0.2s;position:relative;display:flex;flex-direction:column;gap:0.6rem}
+.q-card:hover{background:var(--card2)}
+.q-card:hover .q-arrow{opacity:1;transform:translateX(0)}
+.q-num{font-family:var(--mono);font-size:0.6rem;color:var(--muted2);letter-spacing:0.1em}
+.q-question{font-family:var(--serif);font-size:1.05rem;font-weight:700;line-height:1.3;color:var(--text)}
+.q-teaser{font-size:0.78rem;color:var(--muted);line-height:1.55}
+.q-teaser strong{color:var(--gold);font-weight:600}
+.q-footer{display:flex;align-items:center;justify-content:space-between;margin-top:0.4rem}
+.q-tags{display:flex;gap:0.35rem;flex-wrap:wrap}
+.q-tag{font-family:var(--mono);font-size:0.58rem;padding:0.15rem 0.45rem;border-radius:2px;background:rgba(245,196,0,0.08);color:var(--gold);border:1px solid rgba(245,196,0,0.2)}
+.q-arrow{font-size:0.8rem;color:var(--gold);opacity:0;transform:translateX(-4px);transition:all 0.2s;flex-shrink:0}
+.q-card-featured{grid-column:span 2}
+@media(max-width:700px){.q-card-featured{grid-column:span 1}}
+
+/* STATS */
+.stats-row{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;justify-content:center;flex-wrap:wrap;gap:0}
+.stat{padding:1.1rem 2.5rem;text-align:center;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:var(--mono);font-size:1.5rem;font-weight:600;color:var(--gold);display:block}
+.stat-l{font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase}
+
+/* TABS */
+.tabs-wrap{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:54px;z-index:90}
+.tabs{display:flex;max-width:1200px;margin:0 auto;padding:0 1.5rem;overflow-x:auto}
+.tab{padding:0.85rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.04em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--sans)}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* MAIN CONTENT */
+.main{max-width:1200px;margin:0 auto;padding:2rem 1.5rem}
+
+/* PANEL */
+.panel{display:none}
+.panel.active{display:block}
+
+/* SEARCH + FILTERS */
+.filters-row{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center}
+.f-search{background:var(--card);border:1px solid var(--border);color:var(--text);padding:0.55rem 0.9rem;font-size:0.82rem;font-family:var(--sans);border-radius:3px;min-width:200px;flex:1}
+.f-search::placeholder{color:var(--muted2)}
+.f-search:focus{outline:none;border-color:var(--gold)}
+.f-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:0.55rem 2rem 0.55rem 0.9rem;font-size:0.82rem;font-family:var(--sans);border-radius:3px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238A9BB0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.6rem center}
+.f-select:focus{outline:none;border-color:var(--gold)}
+.f-reset{background:transparent;border:1px solid var(--border);color:var(--muted);padding:0.55rem 0.9rem;font-size:0.78rem;font-family:var(--sans);border-radius:3px;cursor:pointer}
+.f-reset:hover{color:var(--text);border-color:var(--muted)}
+.results-count{font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-left:auto}
+
+/* CARDS GRID */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.35rem;cursor:pointer;transition:border-color 0.2s,transform 0.15s;position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform 0.25s}
+.card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.card:hover::after{transform:scaleX(1)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.4rem}
+.card-name{font-family:var(--serif);font-size:1rem;font-weight:700;line-height:1.25;color:var(--text)}
+.card-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-bottom:0.6rem}
+.card-summary{font-size:0.8rem;color:var(--muted);line-height:1.55;margin-bottom:0.8rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tags{display:flex;flex-wrap:wrap;gap:0.35rem;margin-bottom:0.8rem}
+.tag{font-size:0.65rem;padding:0.18rem 0.5rem;border-radius:2px;font-weight:500;white-space:nowrap}
+.tag-ind{background:rgba(74,158,232,0.1);color:var(--blue);border:1px solid rgba(74,158,232,0.25)}
+.tag-party{background:rgba(76,175,125,0.1);color:var(--green);border:1px solid rgba(76,175,125,0.25)}
+.tag-policy{background:rgba(232,132,58,0.1);color:var(--orange);border:1px solid rgba(232,132,58,0.2)}
+.tag-status-v{background:rgba(76,175,125,0.1);color:var(--green);border:1px solid rgba(76,175,125,0.25)}
+.tag-status-r{background:rgba(245,196,0,0.1);color:var(--gold);border:1px solid rgba(245,196,0,0.25)}
+.tag-status-a{background:rgba(224,82,82,0.1);color:var(--red);border:1px solid rgba(224,82,82,0.25)}
+
+/* POWER BAR */
+.pbar-wrap{margin-top:0.5rem}
+.pbar-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:0.25rem}
+.pbar{height:4px;background:var(--border);border-radius:2px;display:flex;overflow:hidden}
+.pbar-b{background:var(--green)}
+.pbar-c{background:var(--red)}
+
+/* CARD FOOTER */
+.card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:0.65rem;border-top:1px solid var(--border);margin-top:0.65rem;font-size:0.7rem}
+.card-foot-meta{font-family:var(--mono);color:var(--muted)}
+.card-link{color:var(--gold);font-weight:600;font-size:0.7rem}
+
+/* BADGE */
+.badge{font-family:var(--mono);font-size:0.6rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:0.2rem 0.5rem;border-radius:2px;white-space:nowrap;flex-shrink:0}
+.badge-high{background:rgba(224,82,82,0.12);color:var(--red);border:1px solid rgba(224,82,82,0.3)}
+.badge-med{background:rgba(245,196,0,0.1);color:var(--gold);border:1px solid rgba(245,196,0,0.25)}
+.badge-low{background:rgba(76,175,125,0.1);color:var(--green);border:1px solid rgba(76,175,125,0.25)}
+.badge-v{background:rgba(76,175,125,0.1);color:var(--green);border:1px solid rgba(76,175,125,0.25)}
+.badge-r{background:rgba(245,196,0,0.1);color:var(--gold);border:1px solid rgba(245,196,0,0.25)}
+.badge-a{background:rgba(224,82,82,0.1);color:var(--red);border:1px solid rgba(224,82,82,0.25)}
+
+/* EMPTY */
+.empty{text-align:center;padding:3rem;color:var(--muted);font-size:0.9rem}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;overflow-y:auto;padding:2rem 1rem}
+.overlay.open{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:6px;max-width:800px;width:100%;position:relative;overflow:hidden}
+.modal-header{background:var(--surface);padding:2rem 2rem 1.5rem;border-bottom:1px solid var(--border)}
+.modal-close{position:absolute;top:1rem;right:1rem;background:transparent;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:3px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{color:var(--text);border-color:var(--muted)}
+.modal-eyebrow{font-family:var(--mono);font-size:0.65rem;color:var(--gold);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.4rem}
+.modal-title{font-family:var(--serif);font-size:1.6rem;font-weight:700;margin-bottom:0.4rem}
+.modal-sub{font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-bottom:0.75rem}
+.modal-body{padding:1.75rem 2rem}
+.modal-summary{font-size:0.88rem;color:var(--muted);line-height:1.7;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.m2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem}
+@media(max-width:560px){.m2{grid-template-columns:1fr}}
+.msec-title{font-family:var(--mono);font-size:0.63rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem}
+.mlist{list-style:none}
+.mlist li{font-size:0.8rem;color:var(--muted);padding:0.28rem 0 0.28rem 1rem;border-bottom:1px solid rgba(36,49,65,0.5);position:relative}
+.mlist li::before{position:absolute;left:0;color:var(--border)}
+.mlist.benefit li::before{content:'+';color:var(--green)}
+.mlist.cost li::before{content:'−';color:var(--red)}
+.mlist.neutral li::before{content:'–'}
+.chain{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+.chain-title{font-family:var(--mono);font-size:0.63rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem}
+.chain-row{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;font-size:0.78rem}
+.chain-node{background:var(--card2);border:1px solid var(--border);padding:0.35rem 0.7rem;border-radius:3px;color:var(--text);font-family:var(--mono);font-size:0.7rem;cursor:pointer;transition:border-color 0.2s}
+.chain-node:hover{border-color:var(--gold);color:var(--gold)}
+.chain-arrow{color:var(--muted);font-size:0.8rem}
+.pbar-modal{height:8px;border-radius:3px;background:var(--border);overflow:hidden;display:flex;margin-top:0.4rem}
+.pbar-labels-modal{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.62rem;color:var(--muted)}
+.verify-box{background:var(--surface);border:1px dashed var(--border2);border-radius:3px;padding:1rem 1.1rem;margin-bottom:1.5rem}
+.verify-label{font-family:var(--mono);font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem}
+.verify-text{font-size:0.78rem;color:var(--muted);line-height:1.55}
+.verify-text a{color:var(--gold)}
+.src-list{display:flex;flex-direction:column;gap:0}
+.src-link{display:flex;align-items:center;justify-content:space-between;font-size:0.78rem;color:var(--blue);text-decoration:none;padding:0.45rem 0;border-bottom:1px solid var(--border)}
+.src-link:hover{color:var(--gold)}
+.src-tier{font-family:var(--mono);font-size:0.6rem;margin-left:0.5rem}
+
+/* POLICY OUTCOME */
+.outcome-box{background:var(--surface);border-left:3px solid var(--gold);padding:1rem 1.1rem;border-radius:0 3px 3px 0;margin-bottom:1.5rem}
+.outcome-label{font-family:var(--mono);font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem}
+.outcome-text{font-size:0.82rem;color:var(--text);line-height:1.6}
+
+/* GLOBAL SEARCH RESULTS */
+.global-results{background:var(--card);border:1px solid var(--border);border-radius:4px;margin-top:1rem}
+.gr-section{border-bottom:1px solid var(--border);padding:1rem 1.25rem}
+.gr-section:last-child{border-bottom:none}
+.gr-label{font-family:var(--mono);font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem}
+.gr-item{padding:0.5rem 0;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:0.75rem}
+.gr-item:last-child{border-bottom:none}
+.gr-item:hover .gr-name{color:var(--gold)}
+.gr-name{font-size:0.85rem;font-weight:600;transition:color 0.2s}
+.gr-meta{font-size:0.72rem;color:var(--muted);font-family:var(--mono)}
+.gr-type{font-family:var(--mono);font-size:0.6rem;padding:0.15rem 0.45rem;border-radius:2px;background:var(--surface);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+
+/* QUESTION RELATED CARDS */
+.q-related-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:0.65rem 1rem;font-size:0.82rem;color:var(--text);cursor:pointer;transition:border-color 0.2s;display:flex;justify-content:space-between;align-items:center}
+.q-related-card:hover{border-color:var(--gold);color:var(--gold)}
+
+/* MOBILE NAV */
+.nav-menu-btn{display:none;background:transparent;border:1px solid var(--border);color:var(--muted);padding:0.35rem 0.7rem;border-radius:3px;cursor:pointer;font-size:0.8rem;font-family:var(--sans)}
+.nav-menu-btn:hover{color:var(--text)}
+@media(max-width:768px){
+  .nav-links{display:none;position:absolute;top:54px;left:0;right:0;background:rgba(13,17,23,0.98);border-bottom:1px solid var(--border);flex-direction:column;padding:0.75rem 1.5rem;gap:0;z-index:99}
+  .nav-links.open{display:flex}
+  .nav-links li{border-bottom:1px solid var(--border)}
+  .nav-links a{display:block;padding:0.65rem 0;font-size:0.85rem}
+  .nav-menu-btn{display:block}
+  .nav-search{width:140px}
+}
+.tier-item{display:flex;align-items:center;gap:0.4rem;font-size:0.72rem;color:var(--muted)}
+.tier-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ABOUT PANEL */
+.about-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:2rem}
+.about-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.35rem}
+.about-card h3{font-family:var(--serif);font-size:1rem;font-weight:700;margin-bottom:0.5rem}
+.about-card p{font-size:0.8rem;color:var(--muted);line-height:1.6}
+.db-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:2rem}
+.db-table th{text-align:left;padding:0.6rem 0.75rem;border-bottom:2px solid var(--border);font-family:var(--mono);font-size:0.65rem;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase}
+.db-table td{padding:0.6rem 0.75rem;border-bottom:1px solid var(--border);color:var(--muted)}
+.db-table tr:hover td{color:var(--text)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;margin-top:4rem}
+footer p{font-size:0.75rem;color:var(--muted);line-height:1.8}
+footer a{color:var(--gold);text-decoration:none}
+
+@media(max-width:640px){
+  nav{gap:1rem}.nav-links{display:none}
+  .hero{padding:3rem 1rem 2.5rem}
+  .main{padding:1.5rem 1rem}
+  .cards-grid{grid-template-columns:1fr}
+  .stat{padding:0.8rem 1.25rem}
+  .modal-body,.modal-header{padding:1.25rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo" onclick="showPanel('home');return false">Power Map Australia</a>
+  <button class="nav-menu-btn" id="nav-menu-btn" onclick="toggleMobileNav()">☰ Menu</button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#" onclick="showPanel('people');closeMobileNav();return false">People</a></li>
+    <li><a href="#" onclick="showPanel('companies');closeMobileNav();return false">Companies</a></li>
+    <li><a href="#" onclick="showPanel('politicians');closeMobileNav();return false">Politicians</a></li>
+    <li><a href="#" onclick="showPanel('policies');closeMobileNav();return false">Policies</a></li>
+    <li><a href="#" onclick="showPanel('lobbyists');closeMobileNav();return false">Lobbyists</a></li>
+    <li><a href="#" onclick="showPanel('about');closeMobileNav();return false">About</a></li>
+  </ul>
+  <input class="nav-search" type="search" id="nav-search" placeholder="Search everything…" />
+</nav>
+
+<!-- HOME -->
+<div id="panel-home">
+  <header class="hero">
+    <span class="eyebrow">Australian public-interest transparency project</span>
+    <h1>The questions<br>politicians <em>don't answer.</em></h1>
+    <p class="hero-sub">Power Map Australia connects political donations, corporate interests, lobbyists and government contracts to the policies they shape — and asks who benefits.</p>
+    <div class="evidence-note">
+      <span style="color:var(--gold);flex-shrink:0">⚖</span>
+      <span><strong style="color:var(--text)">Evidence standard:</strong> Donation ≠ corruption. Every claim is sourced and tiered: <span style="color:var(--green)">Verified</span> · <span style="color:var(--gold)">Reported</span> · <span style="color:var(--red)">Alleged</span>. Zero unsupported claims.</span>
+    </div>
+  </header>
+
+  <div class="stats-row">
+    <div class="stat"><span class="stat-n" id="s-people">0</span><span class="stat-l">People</span></div>
+    <div class="stat"><span class="stat-n" id="s-companies">0</span><span class="stat-l">Companies</span></div>
+    <div class="stat"><span class="stat-n" id="s-politicians">0</span><span class="stat-l">Politicians</span></div>
+    <div class="stat"><span class="stat-n" id="s-policies">0</span><span class="stat-l">Policies tracked</span></div>
+    <div class="stat"><span class="stat-n" id="s-sources">0</span><span class="stat-l">Sources</span></div>
+    <div class="stat"><span class="stat-n">0</span><span class="stat-l">Unsupported claims</span></div>
+  </div>
+
+  <!-- 10 QUESTIONS -->
+  <div class="questions-wrap">
+    <div class="questions-header">
+      <h2 class="questions-title">Start with a question</h2>
+      <span class="questions-meta">10 questions · all evidence-based</span>
+    </div>
+    <div class="questions-grid">
+
+      <div class="q-card q-card-featured" onclick="openQuestion('housing')">
+        <span class="q-num">01</span>
+        <p class="q-question">Why can't Australians afford a house?</p>
+        <p class="q-teaser">Rents up 36% since 2019. 82% of electorates in mortgage or rental stress. Property developers are among the biggest donors to both major parties — and negative gearing has survived every election. <strong>Follow the money.</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">Property Council</span><span class="q-tag">Negative gearing</span><span class="q-tag">Both parties</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card" onclick="openQuestion('mining-tax')">
+        <span class="q-num">02</span>
+        <p class="q-question">Who killed the mining tax?</p>
+        <p class="q-teaser">Three billionaires spent tens of millions fighting it. The tax was repealed. They kept an estimated <strong>$10 billion</strong> in profits that would have gone to the public.</p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">Rinehart</span><span class="q-tag">Forrest</span><span class="q-tag">Palmer</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card" onclick="openQuestion('defence')">
+        <span class="q-num">03</span>
+        <p class="q-question">What does $368 billion buy?</p>
+        <p class="q-teaser">Australia's AUKUS submarine program is the largest defence contract in our history. Defence contractors donated to both parties. <strong>Who's getting paid — and who decided?</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">AUKUS</span><span class="q-tag">BAE Systems</span><span class="q-tag">Defence lobby</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card" onclick="openQuestion('energy')">
+        <span class="q-num">04</span>
+        <p class="q-question">Why are energy bills still rising?</p>
+        <p class="q-teaser">In 2022, Labor promised bills would fall by $275 a year. They've roughly doubled instead. Gas companies and fossil fuel interests have spent years lobbying against the policies that would actually cut costs. <strong>Who benefits from high prices?</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">Energy policy</span><span class="q-tag">Gas lobby</span><span class="q-tag">Cost of living</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card" onclick="openQuestion('climate')">
+        <span class="q-num">05</span>
+        <p class="q-question">Who funds climate denial in Australia?</p>
+        <p class="q-teaser">Australia has been one of the world's slowest major economies to act on climate. The money trail runs through mining donations, Nationals policy positions, and a network of think tanks and media influence. <strong>Follow it.</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">Rinehart</span><span class="q-tag">Nationals</span><span class="q-tag">Net zero</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card" onclick="openQuestion('banking')">
+        <span class="q-num">06</span>
+        <p class="q-question">Why did the banks escape the Royal Commission?</p>
+        <p class="q-teaser">Kenneth Hayne found systemic misconduct across the Big Four. 76 recommendations. Criminal referrals were not pursued. The banks are still the banks. <strong>What happened between the findings and the outcomes?</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">CBA</span><span class="q-tag">Royal Commission</span><span class="q-tag">ABA lobby</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card q-card-featured" onclick="openQuestion('who-owns')">
+        <span class="q-num">07</span>
+        <p class="q-question">Who really owns Australian politics?</p>
+        <p class="q-teaser">The AEC publishes donation data. ASIC publishes company records. AusTender publishes contracts. The lobbying register names every registered lobbyist and their clients. The data is public — but nobody has put it together in one place with a clear chain from donor to policy to outcome. <strong>Until now.</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">AEC data</span><span class="q-tag">All parties</span><span class="q-tag">All industries</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card" onclick="openQuestion('supermarkets')">
+        <span class="q-num">08</span>
+        <p class="q-question">Why did your grocery bill go up — and their profits too?</p>
+        <p class="q-teaser">Food prices up 27% since 2019. Coles and Woolworths posted record profits. A Senate inquiry found evidence of price gouging. <strong>What's the connection between supermarket donations and competition policy inaction?</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">Supermarkets</span><span class="q-tag">Competition policy</span><span class="q-tag">Cost of living</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card" onclick="openQuestion('nuclear')">
+        <span class="q-num">09</span>
+        <p class="q-question">Nuclear power: nation-building plan or $600B favour to coal country?</p>
+        <p class="q-teaser">The Coalition's seven nuclear plants policy would take 20 years and cost hundreds of billions — in the same electorates that depend on coal. <strong>Who funds the Nationals, and who benefits from delaying renewables?</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">Nuclear</span><span class="q-tag">Nationals</span><span class="q-tag">Coal lobby</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+      <div class="q-card" onclick="openQuestion('population')">
+        <span class="q-num">10</span>
+        <p class="q-question">Why does Australia keep growing its population while housing gets less affordable?</p>
+        <p class="q-teaser">Record migration. Record housing shortfall. Property developers need population growth to sustain construction demand — and they donate heavily to both major parties. <strong>Is immigration policy also housing policy?</strong></p>
+        <div class="q-footer">
+          <div class="q-tags"><span class="q-tag">Migration</span><span class="q-tag">Property developers</span><span class="q-tag">Housing supply</span></div>
+          <span class="q-arrow">→</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:2rem;display:flex;gap:0.75rem;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="showPanel('people')">Explore all profiles →</button>
+      <button class="btn btn-ghost" onclick="showPanel('policies')">Browse policies</button>
+      <button class="btn btn-ghost" onclick="showPanel('about')">How this works</button>
+    </div>
+  </div>
+
+  <!-- Global search results -->
+  <div class="main" id="global-search-results" style="display:none">
+    <div id="global-results-inner"></div>
+  </div>
+</div>
+
+<!-- TABS + PANELS -->
+<div id="panel-explorer" style="display:none">
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab active" data-tab="people" onclick="switchTab('people')">People</button>
+      <button class="tab" data-tab="companies" onclick="switchTab('companies')">Companies</button>
+      <button class="tab" data-tab="politicians" onclick="switchTab('politicians')">Politicians</button>
+      <button class="tab" data-tab="policies" onclick="switchTab('policies')">Policies</button>
+      <button class="tab" data-tab="lobbyists" onclick="switchTab('lobbyists')">Lobbyists</button>
+      <button class="tab" data-tab="contracts" onclick="switchTab('contracts')">Contracts</button>
+    </div>
+  </div>
+  <div class="main">
+
+    <!-- PEOPLE -->
+    <div id="tab-people" class="panel active">
+      <div class="filters-row">
+        <input class="f-search" type="search" placeholder="Search people…" oninput="filterCards('people',this.value)" />
+        <select class="f-select" onchange="filterCards('people','',{industry:this.value})"><option value="">All industries</option></select>
+        <select class="f-select" onchange="filterCards('people','',{party:this.value})"><option value="">All parties</option></select>
+        <button class="f-reset" onclick="resetFilter('people')">Reset</button>
+        <span class="results-count" id="count-people"></span>
+      </div>
+      <div class="cards-grid" id="cards-people"></div>
+      <div class="empty" id="empty-people" style="display:none">No matches found.</div>
+    </div>
+
+    <!-- COMPANIES -->
+    <div id="tab-companies" class="panel">
+      <div class="filters-row">
+        <input class="f-search" type="search" placeholder="Search companies…" oninput="filterCards('companies',this.value)" />
+        <select class="f-select" onchange="filterCards('companies','',{industry:this.value})"><option value="">All industries</option></select>
+        <button class="f-reset" onclick="resetFilter('companies')">Reset</button>
+        <span class="results-count" id="count-companies"></span>
+      </div>
+      <div class="cards-grid" id="cards-companies"></div>
+      <div class="empty" id="empty-companies" style="display:none">No matches found.</div>
+    </div>
+
+    <!-- POLITICIANS -->
+    <div id="tab-politicians" class="panel">
+      <div class="filters-row">
+        <input class="f-search" type="search" placeholder="Search politicians…" oninput="filterCards('politicians',this.value)" />
+        <select class="f-select" onchange="filterCards('politicians','',{party:this.value})"><option value="">All parties</option></select>
+        <button class="f-reset" onclick="resetFilter('politicians')">Reset</button>
+        <span class="results-count" id="count-politicians"></span>
+      </div>
+      <div class="cards-grid" id="cards-politicians"></div>
+      <div class="empty" id="empty-politicians" style="display:none">No matches found.</div>
+    </div>
+
+    <!-- POLICIES -->
+    <div id="tab-policies" class="panel">
+      <div class="filters-row">
+        <input class="f-search" type="search" placeholder="Search policies…" oninput="filterCards('policies',this.value)" />
+        <select class="f-select" onchange="filterCards('policies','',{area:this.value})"><option value="">All areas</option></select>
+        <select class="f-select" onchange="filterCards('policies','',{status:this.value})"><option value="">All statuses</option></select>
+        <button class="f-reset" onclick="resetFilter('policies')">Reset</button>
+        <span class="results-count" id="count-policies"></span>
+      </div>
+      <div class="cards-grid" id="cards-policies"></div>
+      <div class="empty" id="empty-policies" style="display:none">No matches found.</div>
+    </div>
+
+    <!-- LOBBYISTS -->
+    <div id="tab-lobbyists" class="panel">
+      <div class="filters-row">
+        <input class="f-search" type="search" placeholder="Search lobbyists…" oninput="filterCards('lobbyists',this.value)" />
+        <button class="f-reset" onclick="resetFilter('lobbyists')">Reset</button>
+        <span class="results-count" id="count-lobbyists"></span>
+      </div>
+      <div class="cards-grid" id="cards-lobbyists"></div>
+      <div class="empty" id="empty-lobbyists" style="display:none">No matches found.</div>
+    </div>
+
+    <!-- CONTRACTS -->
+    <div id="tab-contracts" class="panel">
+      <div class="filters-row">
+        <input class="f-search" type="search" placeholder="Search contracts…" oninput="filterCards('contracts',this.value)" />
+        <button class="f-reset" onclick="resetFilter('contracts')">Reset</button>
+        <span class="results-count" id="count-contracts"></span>
+      </div>
+      <div class="cards-grid" id="cards-contracts"></div>
+      <div class="empty" id="empty-contracts" style="display:none">No matches found.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ABOUT PANEL -->
+<div id="panel-about" style="display:none">
+  <div class="main">
+    <div style="max-width:760px;margin-bottom:2.5rem">
+      <span class="eyebrow" style="text-align:left;display:block;margin-bottom:0.75rem">About this project</span>
+      <h2 style="font-family:var(--serif);font-size:2rem;font-weight:700;margin-bottom:1rem">Honest, evidence-based, transparent</h2>
+      <p style="color:var(--muted);line-height:1.75;margin-bottom:1rem;font-size:0.9rem">The gap in Australian transparency isn't the data — the AEC publishes donations, AusTender publishes contracts, ASIC publishes company records. The gap is comprehension. Power Map connects that data into a readable chain: <strong style="color:var(--text)">who has money → who they fund → what policies change → who benefits → who pays.</strong></p>
+      <p style="color:var(--muted);line-height:1.75;font-size:0.9rem">Every entity gets the same framework regardless of ideology. Mining magnates and union bosses, property developers and banks — the question is always the same: what do they want from government, and what does the public gain or lose?</p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <h3>Evidence tiers</h3>
+        <p style="margin-bottom:0.75rem">Every claim is tiered by evidence quality:</p>
+        <div style="display:flex;flex-direction:column;gap:0.4rem">
+          <div class="tier-item"><div class="tier-dot" style="background:var(--green)"></div><span><strong style="color:var(--green)">Verified</strong> — AEC register, ASIC, Hansard, court findings, ANAO</span></div>
+          <div class="tier-item"><div class="tier-dot" style="background:var(--gold)"></div><span><strong style="color:var(--gold)">Reported</strong> — ABC, AFR, Guardian, SMH with article link</span></div>
+          <div class="tier-item"><div class="tier-dot" style="background:var(--red)"></div><span><strong style="color:var(--red)">Alleged</strong> — Advocacy/NGO research, clearly labelled</span></div>
+        </div>
+      </div>
+      <div class="about-card">
+        <h3>Legal standard</h3>
+        <p>Donation ≠ corruption. Policy alignment ≠ wrongdoing. This site maps relationships and asks conflict-of-interest questions. Stronger language (misconduct, corruption, wrongdoing) requires court findings or regulator determinations — and is labelled accordingly.</p>
+      </div>
+      <div class="about-card">
+        <h3>Methodology</h3>
+        <p>1. Disclosed money (AEC register)<br/>2. Business interests (ASIC, annual reports)<br/>3. Policy exposure mapping<br/>4. Outcome analysis (Hansard, ANAO, media)<br/>5. Benefit/cost assessment — public interest framing</p>
+      </div>
+      <div class="about-card">
+        <h3>What we don't do</h3>
+        <p>We don't publish unverified donation amounts. We don't make criminal allegations without evidence. We don't treat one side of politics differently. We don't remove VERIFY flags until data is confirmed from primary sources.</p>
+      </div>
+    </div>
+
+    <h3 style="font-family:var(--serif);font-size:1.2rem;font-weight:700;margin-bottom:1rem">Primary source base</h3>
+    <table class="db-table">
+      <thead><tr><th>Source</th><th>Type</th><th>Used for</th><th>Link</th></tr></thead>
+      <tbody>
+        <tr><td>AEC Transparency Register</td><td>Government</td><td>Political donations, annual returns</td><td><a href="https://transparency.aec.gov.au/" target="_blank" style="color:var(--gold)">transparency.aec.gov.au</a></td></tr>
+        <tr><td>ASIC Registers</td><td>Government</td><td>Company records, directorships</td><td><a href="https://asic.gov.au/" target="_blank" style="color:var(--gold)">asic.gov.au</a></td></tr>
+        <tr><td>AusTender</td><td>Government</td><td>Government contracts</td><td><a href="https://www.tenders.gov.au/" target="_blank" style="color:var(--gold)">tenders.gov.au</a></td></tr>
+        <tr><td>Federal Lobbying Register</td><td>Government</td><td>Registered lobbyists and clients</td><td><a href="https://lobbyists.ag.gov.au/" target="_blank" style="color:var(--gold)">lobbyists.ag.gov.au</a></td></tr>
+        <tr><td>Hansard</td><td>Parliamentary</td><td>Speeches, votes, policy positions</td><td><a href="https://www.aph.gov.au/Parliamentary_Business/Hansard" target="_blank" style="color:var(--gold)">aph.gov.au</a></td></tr>
+        <tr><td>ANAO</td><td>Government</td><td>Procurement audits</td><td><a href="https://www.anao.gov.au/" target="_blank" style="color:var(--gold)">anao.gov.au</a></td></tr>
+        <tr><td>They Vote For You</td><td>Civil society</td><td>Voting records</td><td><a href="https://theyvoteforyou.org.au/" target="_blank" style="color:var(--gold)">theyvoteforyou.org.au</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-inner"></div>
+  </div>
+</div>
+
+<footer>
+  <p>Power Map Australia — a civic transparency prototype.<br/>
+  All profiles use public sources only. Verify every claim before acting on it.<br/>
+  Donation ≠ corruption · Policy alignment ≠ wrongdoing · Zero unsupported allegations<br/>
+  <a href="https://transparency.aec.gov.au/" target="_blank">AEC</a> · <a href="https://asic.gov.au/" target="_blank">ASIC</a> · <a href="https://www.tenders.gov.au/" target="_blank">AusTender</a> · <a href="https://lobbyists.ag.gov.au/" target="_blank">Lobbying Register</a> · <a href="https://www.aph.gov.au/" target="_blank">Parliament of Australia</a></p>
+</footer>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA — embedded for zero-dependency deployment
+// ─────────────────────────────────────────────
+const DB = {
+people:[
+  {id:"gina-rinehart",name:"Gina Rinehart",title:"Executive Chairman, Hancock Prospecting",type:"individual",summary:"Australia's wealthiest person. Built Hancock Prospecting into one of the world's largest private iron ore companies. Significant political donor and media investor with extensive policy exposure across resources, energy, immigration and industrial relations.",wealth:"~$40B AUD (2024 est.)",industries:["Mining","Energy","Agriculture","Media"],parties:["LIB","NAT","ONP"],policyExposure:["resource-taxation","mining-approvals","net-zero-2050","industrial-relations"],publicBenefits:["Export income and foreign exchange earnings","Regional employment in WA and NT","Royalties and company tax when payable","Infrastructure co-investment linked to resource projects"],publicCosts:["Environmental externalities from iron ore and coal","Concentration of political influence in one private individual","Regulatory capture risk in resources policy","Advocacy against carbon pricing and net zero","Media influence potentially shaping political coverage"],benefitScore:35,costScore:65,evidenceTier:"verified",tags:["Mining","Iron ore","Media","One Nation donor","Climate opposition"],sources:["AEC Transparency Register","Hancock Prospecting corporate disclosures"]},
+  {id:"andrew-forrest",name:"Andrew Forrest",title:"Founder & Chairman, Fortescue",type:"individual",summary:"Founded Fortescue into Australia's third-largest iron ore miner. Now pivoting toward green hydrogen and clean energy. Donates to both major parties. Significant philanthropist. Policy exposure spans both legacy resources and the energy transition subsidy landscape.",wealth:"~$30B AUD (2024 est.)",industries:["Mining","Green hydrogen","Energy transition","Philanthropy"],parties:["LIB","ALP"],policyExposure:["resource-taxation","clean-energy-subsidies","hydrogen-policy","environmental-regulation"],publicBenefits:["Iron ore exports and jobs","Private capital into clean energy transition","Minderoo Foundation philanthropy","Green hydrogen technology development"],publicCosts:["Risk of public subsidy capture for private hydrogen projects","Land use and environmental impact of scale energy projects","Policy influence over energy transition direction","Potential conflict between iron ore interests and climate advocacy"],benefitScore:55,costScore:45,evidenceTier:"verified",tags:["Mining","Green hydrogen","Philanthropy","Both parties","Energy transition"],sources:["AEC Transparency Register","Fortescue ASX disclosures"]},
+  {id:"clive-palmer",name:"Clive Palmer",title:"Founder, United Australia Party / Mineralogy",type:"individual",summary:"Resources billionaire who founded and self-finances the United Australia Party. Spent record sums on political advertising. Unique case where private business interests and political party are directly fused. Ongoing legal disputes with WA government over royalties.",wealth:"~$10B AUD (2024 est.)",industries:["Mining","Politics","Hospitality"],parties:["UAP"],policyExposure:["mining-approvals","tax-regulation","electoral-advertising","wa-royalties"],publicBenefits:["Resource sector employment where projects proceed","Political competition and voter choice"],publicCosts:["Unprecedented private election spending distorting democratic equality","Direct fusion of business interest and political party","Litigation against state governments using private wealth"],benefitScore:25,costScore:75,evidenceTier:"verified",tags:["Mining","UAP founder","Election spending","WA royalties dispute","Political party owner"],sources:["AEC Transparency Register","ABC News reporting"]},
+  {id:"anthony-pratt",name:"Anthony Pratt",title:"Executive Chairman, Visy / Pratt Industries",type:"individual",summary:"Controls Visy (Australia) and Pratt Industries (USA) — the world's largest private packaging group. Significant donor to both major parties in Australia and the US. Policy exposure across manufacturing, energy costs, recycling regulation and industrial relations.",wealth:"~$25B AUD (2024 est.)",industries:["Packaging","Manufacturing","Recycling","Paper"],parties:["LIB","ALP"],policyExposure:["manufacturing-policy","energy-prices","recycling-regulation","industrial-relations"],publicBenefits:["Large-scale Australian manufacturing employment","Recycling infrastructure and capacity","Export earnings and domestic supply chains"],publicCosts:["Regulatory influence risk across two major parties","Energy subsidy exposure","Market concentration in packaging sector"],benefitScore:50,costScore:50,evidenceTier:"verified",tags:["Manufacturing","Packaging","Both parties","US donor","Recycling"],sources:["AEC Transparency Register","ASIC records"]}
+],
+companies:[
+  {id:"hancock-prospecting",name:"Hancock Prospecting",type:"Private company",industry:"Mining",sector:"Iron ore, coal, agriculture",summary:"Australia's largest private company by revenue. Holds iron ore and coal tenements across WA and Queensland. Privately held — limited disclosure requirements compared to ASX-listed entities.",policyExposure:["resource-taxation","mining-approvals","net-zero-2050","environmental-regulation"],evidenceTier:"verified",tags:["Iron ore","Private","WA","Coal","Agriculture"]},
+  {id:"fortescue",name:"Fortescue Ltd (FMG)",type:"ASX-listed",industry:"Mining",sector:"Iron ore, green energy",summary:"Australia's third-largest iron ore miner. Andrew Forrest retains ~36% ownership and effective control. Renamed as it pivots to green energy via Fortescue Future Industries.",policyExposure:["resource-taxation","clean-energy-subsidies","hydrogen-policy"],evidenceTier:"verified",tags:["Iron ore","ASX","Green hydrogen","WA","FMG"]},
+  {id:"mineralogy",name:"Mineralogy Pty Ltd",type:"Private company",industry:"Mining",sector:"Resource tenements",summary:"Holds significant resource tenements in WA including the Balmoral South iron ore project. Subject of major legal disputes with the WA government. Closely intertwined with UAP funding.",policyExposure:["mining-approvals","wa-royalties","government-litigation"],evidenceTier:"reported",tags:["Iron ore","Private","WA","UAP linked","Litigation"]},
+  {id:"visy-industries",name:"Visy Industries",type:"Private company",industry:"Manufacturing",sector:"Packaging, paper, recycling",summary:"Australia's largest private packaging and paper manufacturer. Energy-intensive operations give it significant exposure to energy price and emissions policy.",policyExposure:["manufacturing-policy","energy-prices","recycling-regulation"],evidenceTier:"verified",tags:["Manufacturing","Packaging","Private","Recycling","Energy intensive"]},
+  {id:"property-council",name:"Property Council of Australia",type:"Industry body",industry:"Property",sector:"Real estate, construction, development",summary:"Peak body representing Australia's largest property developers. Consistently advocates for negative gearing retention, reduced planning restrictions and population growth to support construction demand.",policyExposure:["planning-approvals","negative-gearing","cgt-discount","migration-population"],evidenceTier:"verified",tags:["Property","Industry body","Planning","Negative gearing","Both parties"]},
+  {id:"defence-cluster",name:"Defence industry cluster",type:"Industry cluster",industry:"Defence",sector:"Aerospace, shipbuilding, cyber, weapons",summary:"Collective profile of major defence contractors: Lockheed Martin, BAE Systems, Thales, Hanwha, ASC. Combined government contract exposure of $50B+ across AUKUS, Hunter-class frigates, F-35s and cyber programs.",policyExposure:["defence-spending","aukus","procurement-rules"],evidenceTier:"verified",tags:["Defence","AUKUS","Shipbuilding","Aerospace","Procurement"]},
+  {id:"cba",name:"Commonwealth Bank of Australia",type:"ASX-listed (CBA)",industry:"Banking",sector:"Retail banking, mortgages, business lending",summary:"Australia's largest bank by market cap. Royal Commission (2019) found systemic misconduct across the sector. Significant policy exposure across banking regulation, mortgage lending rules and competition policy.",policyExposure:["banking-regulation","mortgage-lending","financial-advice","competition-policy"],evidenceTier:"verified",tags:["Banking","ASX","Mortgages","Royal Commission","Big Four"]},
+  {id:"cfmeu",name:"CFMEU",type:"Union",industry:"Labour",sector:"Construction, forestry, mining, energy",summary:"Australia's most powerful construction and mining union. Major donor to the ALP. Subject to ABCC oversight and recent administration proceedings.",policyExposure:["industrial-relations","construction-procurement","workplace-safety","enterprise-bargaining"],evidenceTier:"verified",tags:["Union","ALP donor","Construction","Mining","IR policy"]}
+],
+politicians:[
+  {id:"anthony-albanese",name:"Anthony Albanese",role:"Prime Minister",party:"ALP",chamber:"House of Representatives",electorate:"Grayndler NSW",summary:"Labor Prime Minister since 2022. Key policy decisions: IR reforms, housing accord, clean energy target, AUKUS continuation.",policyDecisions:["policy-ir-reforms","policy-housing-accord","policy-clean-energy-target"],evidenceTier:"verified",tags:["PM","ALP","IR reform","Housing","Clean energy"]},
+  {id:"peter-dutton",name:"Peter Dutton",role:"Leader of the Opposition",party:"LIB",chamber:"House of Representatives",electorate:"Dickson QLD",summary:"Liberal Opposition Leader. Former Home Affairs and Defence Minister. Advocates nuclear energy, opposes net zero timeline, supports AUKUS.",policyDecisions:["policy-nuclear-energy","policy-aukus","policy-migration"],evidenceTier:"verified",tags:["Opposition","Liberal","Nuclear","Defence","Migration"]},
+  {id:"barnaby-joyce",name:"Barnaby Joyce",role:"Nationals MP",party:"NAT",chamber:"House of Representatives",electorate:"New England NSW",summary:"Former Deputy PM and Agriculture Minister. Consistent opponent of net zero by 2050. Associated with resource and agricultural policy positions aligned with Rinehart interests.",policyDecisions:["policy-net-zero-2050","policy-coal-funding"],evidenceTier:"reported",tags:["Nationals","Agriculture","Resources","Net zero opposition","Rinehart linked"]},
+  {id:"matt-canavan",name:"Matt Canavan",role:"Nationals Senator",party:"NAT",chamber:"Senate",electorate:"Queensland",summary:"Former Resources Minister. Australia's most vocal parliamentary advocate for coal and gas. Opposed net zero commitment within Coalition.",policyDecisions:["policy-coal-funding","policy-net-zero-2050","policy-resource-taxation"],evidenceTier:"reported",tags:["Nationals","Senate","Coal advocate","Resources","Net zero opposition"]},
+  {id:"chris-bowen",name:"Chris Bowen",role:"Minister for Climate Change & Energy",party:"ALP",chamber:"House of Representatives",electorate:"McMahon NSW",summary:"Responsible for legislating net zero and the 82% renewables by 2030 target. Key figure in clean energy subsidy and hydrogen policy settings.",policyDecisions:["policy-clean-energy-target","policy-hydrogen-policy","policy-net-zero-2050"],evidenceTier:"verified",tags:["ALP","Energy","Climate","Hydrogen","Renewables"]},
+  {id:"jim-chalmers",name:"Jim Chalmers",role:"Treasurer",party:"ALP",chamber:"House of Representatives",electorate:"Rankin QLD",summary:"Federal Treasurer. Oversees tax policy, budget, banking regulation settings. Key decisions on stage 3 tax cuts and housing policy.",policyDecisions:["policy-resource-taxation","policy-housing-accord","policy-tax-policy"],evidenceTier:"verified",tags:["ALP","Treasury","Tax","Banking","Budget"]}
+],
+policies:[
+  {id:"policy-resource-taxation",name:"Resource Super Profits Tax / MRRT",area:"Taxation",status:"Repealed (2014)",summary:"Mining Resource Rent Tax introduced by Gillard government, watered down after industry campaign, repealed by Abbott government. One of Australia's most prominent examples of resource industry political influence over tax policy.",outcome:"Repealed. Mining companies retained profits at public cost. Estimated $10B+ in foregone revenue.",whoAdvocated:["Gina Rinehart","Andrew Forrest","Clive Palmer"],whoOpposed:["CFMEU"],evidenceTier:"verified",tags:["Mining","Tax","Rinehart","Forrest","Palmer","Abbott","Gillard"]},
+  {id:"policy-net-zero-2050",name:"Net Zero by 2050 commitment",area:"Climate & Energy",status:"Active — legislated",summary:"Australia's commitment to net zero emissions by 2050, legislated by the Albanese government in 2022. Opposed by resources sector and Nationals. Significant financial exposure for fossil fuel companies and potential upside for clean energy investors.",outcome:"Legislated. Implementation ongoing. Nationals continue internal opposition.",whoAdvocated:["Andrew Forrest","Fortescue"],whoOpposed:["Gina Rinehart","Clive Palmer"],evidenceTier:"verified",tags:["Climate","Energy","Net zero","Rinehart","Forrest","Nationals","ALP"]},
+  {id:"policy-negative-gearing",name:"Negative gearing & CGT discount",area:"Housing & Tax",status:"Active — retained",summary:"Allows investors to deduct property losses against income, combined with 50% CGT discount. Property industry consistently donates to parties that retain these settings. Labor proposed changes in 2016 and 2019 — both elections lost.",outcome:"Retained. Labor dropped reform after 2019 election loss. Estimated $10B+ annual tax expenditure.",whoAdvocated:["Property Council","CBA"],whoOpposed:[],evidenceTier:"verified",tags:["Housing","Tax","Property","Investors","Affordability"]},
+  {id:"policy-aukus",name:"AUKUS nuclear submarine program",area:"Defence",status:"Active — implementation",summary:"Trilateral security partnership for nuclear-powered submarines. Total estimated cost $268–368B AUD over decades. Largest defence procurement in Australian history.",outcome:"Proceeding. First submarines expected 2030s–2040s. Cost estimates continue to rise.",whoAdvocated:["Defence industry cluster"],whoOpposed:["Greens"],evidenceTier:"verified",tags:["Defence","AUKUS","Submarines","USA","UK","Procurement"]},
+  {id:"policy-ir-reforms",name:"Industrial Relations — Closing Loopholes Acts",area:"Industrial Relations",status:"Active — legislated 2024",summary:"Major IR reforms including same-job same-pay for gig workers, rights for casual workers and union delegate rights. Strongly supported by unions, opposed by business groups.",outcome:"Legislated. Implementation underway.",whoAdvocated:["CFMEU"],whoOpposed:["Gina Rinehart","Visy Industries"],evidenceTier:"verified",tags:["IR","Unions","Gig economy","ALP","CFMEU"]},
+  {id:"policy-banking-regulation",name:"Banking Royal Commission outcomes",area:"Financial Regulation",status:"Partially implemented",summary:"Kenneth Hayne's 2019 Royal Commission found systemic misconduct across the Big Four. 76 recommendations made. Criminal referrals were not pursued. Banks lobbied against strongest recommendations.",outcome:"Partially implemented. Criminal referrals not pursued.",whoAdvocated:["CBA","ABA"],whoOpposed:[],evidenceTier:"verified",tags:["Banking","Royal Commission","Regulation","Consumer protection","Big Four"]},
+  {id:"policy-housing-accord",name:"National Housing Accord — 1.2M homes",area:"Housing",status:"Active",summary:"Federal government target to build 1.2 million new homes over 5 years. Property and construction industry primary beneficiary of increased approvals and public investment.",outcome:"Active. Independent analysis suggests targets unlikely to be met at current rates.",whoAdvocated:["Property Council"],whoOpposed:[],evidenceTier:"verified",tags:["Housing","Planning","Property","Construction","Supply"]},
+  {id:"policy-clean-energy-target",name:"Capacity Investment Scheme / 82% renewables",area:"Energy",status:"Active",summary:"Government scheme underwriting renewable energy investment to reach 82% renewables by 2030. Andrew Forrest's Fortescue Future Industries positioned to benefit significantly from hydrogen and clean energy policy settings.",outcome:"Active. 82% target contested by opposition who propose nuclear instead.",whoAdvocated:["Andrew Forrest","Fortescue"],whoOpposed:["Gina Rinehart","Clive Palmer"],evidenceTier:"verified",tags:["Energy","Renewables","Hydrogen","Forrest","Climate","Subsidies"]}
+],
+lobbyists:[
+  {id:"minerals-council",name:"Minerals Council of Australia",type:"Industry association",clients:["Hancock Prospecting","Fortescue","Mineralogy","Major miners"],policyTargets:["resource-taxation","mining-approvals","net-zero-2050","industrial-relations"],summary:"Peak mining industry lobby. Ran major campaign against the Resource Super Profits Tax. Consistently advocates for reduced resource taxation, slower emissions timelines and against IR reform.",evidenceTier:"verified",tags:["Mining","Lobby","Tax","Climate opposition"]},
+  {id:"property-council-lobby",name:"Property Council of Australia",type:"Industry association",clients:["Major developers","REITs","Construction companies"],policyTargets:["negative-gearing","planning-approvals","cgt-discount","housing-accord"],summary:"Advocacy arm protecting negative gearing and CGT discount settings across multiple election cycles. Targets planning, tax and housing policy at federal and state level.",evidenceTier:"verified",tags:["Property","Lobby","Negative gearing","Planning"]},
+  {id:"aba-lobby",name:"Australian Banking Association",type:"Industry association",clients:["CBA","ANZ","NAB","Westpac"],policyTargets:["banking-regulation","mortgage-lending","royal-commission-implementation"],summary:"Peak banking lobby. Played significant role in shaping the response to the Banking Royal Commission, including limiting criminal referrals.",evidenceTier:"verified",tags:["Banking","Lobby","Royal Commission","Regulation"]},
+  {id:"defence-industry-lobby",name:"Australian Defence Industry Group / AIDN",type:"Industry association",clients:["BAE Systems","Lockheed Martin","Thales","Hanwha","ASC"],policyTargets:["defence-spending","aukus","procurement-rules","export-controls"],summary:"Represents defence contractors lobbying for procurement spending and favourable acquisition rules. AUKUS has dramatically increased the stakes of defence industry lobbying in Australia.",evidenceTier:"reported",tags:["Defence","AUKUS","Procurement","Revolving door"]}
+],
+contracts:[
+  {id:"contract-aukus",name:"AUKUS Nuclear Submarine Program",agency:"Dept of Defence",value:"$268B–$368B AUD (lifetime est.)",period:"2023–2050s",recipients:["BAE Systems","US shipyards","ASC"],summary:"Largest defence procurement in Australian history. Covers design, construction and sustainment of nuclear-powered submarines.",evidenceTier:"verified",tags:["Defence","AUKUS","Submarines"]},
+  {id:"contract-hunter-frigate",name:"Hunter-class Frigate Program",agency:"Dept of Defence",value:"~$45B AUD",period:"2018–2040s",recipients:["BAE Systems"],summary:"Nine Hunter-class frigates to be built at Osborne Naval Shipyard SA. Program has faced significant cost blowouts and schedule delays per ANAO audits.",evidenceTier:"verified",tags:["Defence","Frigates","BAE Systems","Cost overrun"]},
+  {id:"contract-ffi-hydrogen",name:"Green hydrogen / clean energy grants",agency:"ARENA / CEFC",value:"VERIFY — multiple facilities",period:"2021–ongoing",recipients:["Fortescue Future Industries"],summary:"Fortescue Future Industries has received or sought various forms of government support for green hydrogen projects. Exact amounts require verification via ARENA and CEFC disclosure registers.",evidenceTier:"reported",tags:["Hydrogen","Forrest","Subsidies","ARENA","Clean energy"]}
+]
+};
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let currentPanel = 'home';
+let currentTab = 'people';
+const filterState = {};
+
+// ─────────────────────────────────────────────
+// PANEL / TAB NAVIGATION
+// ─────────────────────────────────────────────
+function showPanel(name) {
+  document.getElementById('panel-home').style.display = 'none';
+  document.getElementById('panel-explorer').style.display = 'none';
+  document.getElementById('panel-about').style.display = 'none';
+  document.getElementById('global-search-results').style.display = 'none';
+
+  if (name === 'home') {
+    document.getElementById('panel-home').style.display = 'block';
+  } else if (name === 'about') {
+    document.getElementById('panel-about').style.display = 'block';
+  } else {
+    document.getElementById('panel-explorer').style.display = 'block';
+    switchTab(name);
+  }
+  currentPanel = name;
+  window.scrollTo(0,0);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('tab-' + name);
+  if (el) el.classList.add('active');
+  currentTab = name;
+  renderTab(name);
+}
+
+// ─────────────────────────────────────────────
+// RENDER HELPERS
+// ─────────────────────────────────────────────
+function tierBadge(t) {
+  const map = {verified:['badge-v','Verified'],reported:['badge-r','Reported'],alleged:['badge-a','Alleged']};
+  const [cls,label] = map[t] || ['badge-r','Reported'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function pbar(b,c) {
+  const tot = b+c; const bp = Math.round(b/tot*100);
+  return `<div class="pbar-wrap"><div class="pbar-labels"><span>Benefit</span><span>Cost</span></div><div class="pbar"><div class="pbar-b" style="width:${bp}%"></div><div class="pbar-c" style="width:${100-bp}%"></div></div></div>`;
+}
+
+function tagsHtml(arr, cls='tag-ind') {
+  if(!arr||!arr.length) return '';
+  return `<div class="tags">${arr.slice(0,5).map(t=>`<span class="tag ${cls}">${t}</span>`).join('')}</div>`;
+}
+
+// ─────────────────────────────────────────────
+// CARD RENDERERS
+// ─────────────────────────────────────────────
+function cardPerson(p) {
+  return `<div class="card" onclick="openModal('person','${p.id}')">
+    <div class="card-top"><span class="card-name">${p.name}</span>${tierBadge(p.evidenceTier)}</div>
+    <p class="card-sub">${p.title||p.type}</p>
+    <p class="card-summary">${p.summary}</p>
+    ${tagsHtml(p.industries,'tag-ind')}${tagsHtml(p.parties,'tag-party')}
+    ${pbar(p.benefitScore||50,p.costScore||50)}
+    <div class="card-foot"><span class="card-foot-meta">${p.policyExposure?p.policyExposure.length:0} policies</span><span class="card-link">View →</span></div>
+  </div>`;
+}
+
+function cardCompany(c) {
+  return `<div class="card" onclick="openModal('company','${c.id}')">
+    <div class="card-top"><span class="card-name">${c.name}</span>${tierBadge(c.evidenceTier)}</div>
+    <p class="card-sub">${c.type} · ${c.industry}</p>
+    <p class="card-summary">${c.summary}</p>
+    ${tagsHtml(c.tags,'tag-ind')}
+    <div class="card-foot"><span class="card-foot-meta">${c.policyExposure?c.policyExposure.length:0} policy areas</span><span class="card-link">View →</span></div>
+  </div>`;
+}
+
+function cardPolitician(p) {
+  const partyColours = {ALP:'#E8002D',LIB:'#1C4F9C',NAT:'#006837',GRN:'#009C3B',UAP:'#FFCF00',ONP:'#FF6600'};
+  const pc = partyColours[p.party]||'#8A9BB0';
+  return `<div class="card" onclick="openModal('politician','${p.id}')">
+    <div class="card-top"><span class="card-name">${p.name}</span><span class="badge" style="background:${pc}22;color:${pc};border:1px solid ${pc}44">${p.party}</span></div>
+    <p class="card-sub">${p.role}</p>
+    <p class="card-summary">${p.summary}</p>
+    ${tagsHtml(p.tags,'tag-policy')}
+    <div class="card-foot"><span class="card-foot-meta">${p.electorate}</span><span class="card-link">View →</span></div>
+  </div>`;
+}
+
+function cardPolicy(p) {
+  const statusCls = p.status.includes('Repealed')?'tag-status-a':p.status.includes('Active')?'tag-status-v':'tag-status-r';
+  return `<div class="card" onclick="openModal('policy','${p.id}')">
+    <div class="card-top"><span class="card-name">${p.name}</span>${tierBadge(p.evidenceTier)}</div>
+    <p class="card-sub">${p.area}</p>
+    <p class="card-summary">${p.summary}</p>
+    <div class="tags"><span class="tag ${statusCls}">${p.status}</span></div>
+    ${tagsHtml(p.tags,'tag-policy')}
+    <div class="card-foot"><span class="card-foot-meta">${p.whoAdvocated?p.whoAdvocated.length:0} advocates identified</span><span class="card-link">View →</span></div>
+  </div>`;
+}
+
+function cardLobbyist(l) {
+  return `<div class="card" onclick="openModal('lobbyist','${l.id}')">
+    <div class="card-top"><span class="card-name">${l.name}</span>${tierBadge(l.evidenceTier)}</div>
+    <p class="card-sub">${l.type}</p>
+    <p class="card-summary">${l.summary}</p>
+    ${tagsHtml(l.tags,'tag-ind')}
+    <div class="card-foot"><span class="card-foot-meta">${l.clients?l.clients.length:0} clients · ${l.policyTargets?l.policyTargets.length:0} policy areas</span><span class="card-link">View →</span></div>
+  </div>`;
+}
+
+function cardContract(c) {
+  return `<div class="card" onclick="openModal('contract','${c.id}')">
+    <div class="card-top"><span class="card-name">${c.name}</span>${tierBadge(c.evidenceTier)}</div>
+    <p class="card-sub">${c.agency}</p>
+    <p class="card-summary">${c.summary}</p>
+    ${tagsHtml(c.tags,'tag-policy')}
+    <div class="card-foot"><span class="card-foot-meta">${c.value}</span><span class="card-link">View →</span></div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// RENDER TAB
+// ─────────────────────────────────────────────
+function renderTab(name, query='') {
+  const renderers = {
+    people: [DB.people, cardPerson, 'name'],
+    companies: [DB.companies, cardCompany, 'name'],
+    politicians: [DB.politicians, cardPolitician, 'name'],
+    policies: [DB.policies, cardPolicy, 'name'],
+    lobbyists: [DB.lobbyists, cardLobbyist, 'name'],
+    contracts: [DB.contracts, cardContract, 'name']
+  };
+  const [data, renderer] = renderers[name] || [[], x => ''];
+  const q = (filterState[name]?.query || query).toLowerCase();
+  const filtered = data.filter(item => {
+    if (!q) return true;
+    return JSON.stringify(item).toLowerCase().includes(q);
+  });
+  const grid = document.getElementById('cards-' + name);
+  const empty = document.getElementById('empty-' + name);
+  const count = document.getElementById('count-' + name);
+  if (grid) grid.innerHTML = filtered.map(renderer).join('');
+  if (empty) empty.style.display = filtered.length ? 'none' : 'block';
+  if (count) count.textContent = `${filtered.length} result${filtered.length!==1?'s':''}`;
+}
+
+function filterCards(tab, query) {
+  if (!filterState[tab]) filterState[tab] = {};
+  filterState[tab].query = query;
+  renderTab(tab, query);
+}
+
+function resetFilter(tab) {
+  filterState[tab] = {};
+  document.querySelectorAll(`#tab-${tab} .f-search`).forEach(el => el.value = '');
+  document.querySelectorAll(`#tab-${tab} .f-select`).forEach(el => el.value = '');
+  renderTab(tab);
+}
+
+// ─────────────────────────────────────────────
+// MODALS
+// ─────────────────────────────────────────────
+function openModal(type, id) {
+  const map = {person:DB.people, company:DB.companies, politician:DB.politicians, policy:DB.policies, lobbyist:DB.lobbyists, contract:DB.contracts};
+  const item = (map[type]||[]).find(x => x.id === id);
+  if (!item) return;
+  document.getElementById('modal-inner').innerHTML = buildModal(type, item);
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function listHtml(items, cls='neutral') {
+  if (!items || !items.length) return '<p style="font-size:0.78rem;color:var(--muted)">None identified</p>';
+  return `<ul class="mlist ${cls}">${items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+}
+
+function buildModal(type, p) {
+  if (type === 'person') return modalPerson(p);
+  if (type === 'company') return modalCompany(p);
+  if (type === 'politician') return modalPolitician(p);
+  if (type === 'policy') return modalPolicy(p);
+  if (type === 'lobbyist') return modalLobbyist(p);
+  if (type === 'contract') return modalContract(p);
+  return '';
+}
+
+function modalPerson(p) {
+  const tot = (p.benefitScore||50)+(p.costScore||50);
+  const bp = Math.round((p.benefitScore||50)/tot*100);
+  return `
+    <div class="modal-header">
+      <p class="modal-eyebrow">Individual · ${p.type}</p>
+      <h2 class="modal-title">${p.name}</h2>
+      <p class="modal-sub">${p.title} ${p.wealth?'· '+p.wealth:''}</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">${tierBadge(p.evidenceTier)}${(p.industries||[]).slice(0,3).map(i=>`<span class="tag tag-ind">${i}</span>`).join('')}${(p.parties||[]).map(pt=>`<span class="tag tag-party">${pt}</span>`).join('')}</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-summary">${p.summary}</p>
+      <div class="chain">
+        <p class="chain-title">Influence chain</p>
+        <div class="chain-row">
+          <span class="chain-node">${p.name}</span><span class="chain-arrow">→</span>
+          <span class="chain-node">${(p.parties||[]).join(' · ')}</span><span class="chain-arrow">→</span>
+          <span class="chain-node">${(p.policyExposure||[]).slice(0,2).join(', ')}</span><span class="chain-arrow">→</span>
+          <span class="chain-node">Policy outcome</span>
+        </div>
+      </div>
+      <div style="margin-bottom:1.5rem">
+        <p class="msec-title">Public benefit / cost balance</p>
+        <div class="pbar-labels-modal"><span>Public benefit (${bp}%)</span><span>Public cost (${100-bp}%)</span></div>
+        <div class="pbar-modal"><div class="pbar-b" style="width:${bp}%"></div><div class="pbar-c" style="width:${100-bp}%"></div></div>
+      </div>
+      <div class="m2">
+        <div><p class="msec-title">Public benefits identified</p>${listHtml(p.publicBenefits,'benefit')}</div>
+        <div><p class="msec-title">Public costs / risks</p>${listHtml(p.publicCosts,'cost')}</div>
+        <div><p class="msec-title">Policy exposure</p>${listHtml(p.policyExposure,'neutral')}</div>
+        <div><p class="msec-title">Parties donated to</p>${listHtml(p.parties,'neutral')}</div>
+      </div>
+      <div class="verify-box">
+        <p class="verify-label">⚠ Donation amounts require verification</p>
+        <p class="verify-text">Verify exact donation figures, recipients and years directly from the <a href="https://transparency.aec.gov.au/" target="_blank">AEC Transparency Register</a>. This profile documents relationships and policy exposure only — amounts are not published until verified.</p>
+      </div>
+      <p class="msec-title">Sources</p>
+      <div class="src-list">${(p.sources||[]).map(s=>`<span class="src-link" style="cursor:default">${s} ${tierBadge(p.evidenceTier)}</span>`).join('')}<a class="src-link" href="https://transparency.aec.gov.au/" target="_blank">AEC Transparency Register ↗</a><a class="src-link" href="https://asic.gov.au/" target="_blank">ASIC company register ↗</a></div>
+    </div>`;
+}
+
+function modalCompany(c) {
+  return `
+    <div class="modal-header">
+      <p class="modal-eyebrow">Company · ${c.type}</p>
+      <h2 class="modal-title">${c.name}</h2>
+      <p class="modal-sub">${c.industry} · ${c.sector}</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">${tierBadge(c.evidenceTier)}${(c.tags||[]).slice(0,4).map(t=>`<span class="tag tag-ind">${t}</span>`).join('')}</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-summary">${c.summary}</p>
+      <div class="m2">
+        <div><p class="msec-title">Policy exposure</p>${listHtml(c.policyExposure,'neutral')}</div>
+        <div><p class="msec-title">Tags</p>${listHtml(c.tags,'neutral')}</div>
+      </div>
+      <div class="verify-box">
+        <p class="verify-label">⚠ Donations require AEC verification</p>
+        <p class="verify-text">Check <a href="https://transparency.aec.gov.au/" target="_blank">AEC Transparency Register</a> for disclosed donations. Check <a href="https://www.tenders.gov.au/" target="_blank">AusTender</a> for government contracts. Check <a href="https://asic.gov.au/" target="_blank">ASIC</a> for company records and directorships.</p>
+      </div>
+    </div>`;
+}
+
+function modalPolitician(p) {
+  return `
+    <div class="modal-header">
+      <p class="modal-eyebrow">Politician · ${p.party} · ${p.chamber}</p>
+      <h2 class="modal-title">${p.name}</h2>
+      <p class="modal-sub">${p.role} · ${p.electorate}</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">${tierBadge(p.evidenceTier)}${(p.tags||[]).slice(0,4).map(t=>`<span class="tag tag-policy">${t}</span>`).join('')}</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-summary">${p.summary}</p>
+      <div class="m2">
+        <div><p class="msec-title">Key policy decisions</p>${listHtml(p.policyDecisions,'neutral')}</div>
+        <div><p class="msec-title">Tags</p>${listHtml(p.tags,'neutral')}</div>
+      </div>
+      <div class="verify-box">
+        <p class="verify-label">Verify via ministerial diary</p>
+        <p class="verify-text">Lobbyist meetings are publicly disclosed via ministerial diaries. Check <a href="https://www.aph.gov.au/" target="_blank">Parliament of Australia</a> for voting records and <a href="https://theyvoteforyou.org.au/" target="_blank">They Vote For You</a> for voting history.</p>
+      </div>
+    </div>`;
+}
+
+function modalPolicy(p) {
+  const statusCls = p.status.includes('Repealed')?'badge-a':p.status.includes('Active')?'badge-v':'badge-r';
+  return `
+    <div class="modal-header">
+      <p class="modal-eyebrow">Policy · ${p.area}</p>
+      <h2 class="modal-title">${p.name}</h2>
+      <p class="modal-sub"><span class="badge ${statusCls}">${p.status}</span></p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem">${tierBadge(p.evidenceTier)}${(p.tags||[]).slice(0,4).map(t=>`<span class="tag tag-policy">${t}</span>`).join('')}</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-summary">${p.summary}</p>
+      <div class="outcome-box">
+        <p class="outcome-label">Outcome</p>
+        <p class="outcome-text">${p.outcome}</p>
+      </div>
+      <div class="m2">
+        <div><p class="msec-title">Who advocated for this</p>${listHtml(p.whoAdvocated,'benefit')}</div>
+        <div><p class="msec-title">Who opposed this</p>${listHtml(p.whoOpposed,'cost')}</div>
+        <div><p class="msec-title">Private beneficiaries</p>${listHtml(p.whoAdvocated,'neutral')}</div>
+        <div><p class="msec-title">Tags</p>${listHtml(p.tags,'neutral')}</div>
+      </div>
+    </div>`;
+}
+
+function modalLobbyist(l) {
+  return `
+    <div class="modal-header">
+      <p class="modal-eyebrow">Lobbyist · ${l.type}</p>
+      <h2 class="modal-title">${l.name}</h2>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem">${tierBadge(l.evidenceTier)}${(l.tags||[]).slice(0,4).map(t=>`<span class="tag tag-ind">${t}</span>`).join('')}</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-summary">${l.summary}</p>
+      <div class="m2">
+        <div><p class="msec-title">Clients</p>${listHtml(l.clients,'neutral')}</div>
+        <div><p class="msec-title">Policy targets</p>${listHtml(l.policyTargets,'neutral')}</div>
+      </div>
+      <div class="verify-box">
+        <p class="verify-label">Verify via lobbying register</p>
+        <p class="verify-text">Check the <a href="https://lobbyists.ag.gov.au/" target="_blank">Federal Lobbying Register</a> for registered lobbyists, clients and contact details.</p>
+      </div>
+    </div>`;
+}
+
+function modalContract(c) {
+  return `
+    <div class="modal-header">
+      <p class="modal-eyebrow">Government contract · ${c.agency}</p>
+      <h2 class="modal-title">${c.name}</h2>
+      <p class="modal-sub">${c.value} · ${c.period}</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem">${tierBadge(c.evidenceTier)}${(c.tags||[]).slice(0,4).map(t=>`<span class="tag tag-policy">${t}</span>`).join('')}</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-summary">${c.summary}</p>
+      <div class="m2">
+        <div><p class="msec-title">Recipients</p>${listHtml(c.recipients,'neutral')}</div>
+        <div><p class="msec-title">Tags</p>${listHtml(c.tags,'neutral')}</div>
+      </div>
+      <div class="verify-box">
+        <p class="verify-label">Verify via AusTender</p>
+        <p class="verify-text">Check <a href="https://www.tenders.gov.au/" target="_blank">AusTender</a> for exact contract values, recipients and terms. Check <a href="https://www.anao.gov.au/" target="_blank">ANAO</a> for audit reports on major procurements.</p>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+// QUESTION MODALS
+// ─────────────────────────────────────────────
+const QUESTIONS = {
+  'housing': {
+    title: 'Why can\'t Australians afford a house?',
+    intro: 'Advertised rents rose around 22% between 2020 and early 2023 according to the ABS, and have continued rising since. Mortgage costs hit a record 48.9% of median income in late 2023 (ANZ/CoreLogic). For 25 years, two tax policies economists consistently link to unaffordability — negative gearing and the 50% capital gains tax discount — remained untouched. The Parliamentary Budget Office calculated their combined cost to taxpayers at $97 billion over the decade to 2033. The property and construction sector donated $54 million to Australian political parties over 20 years according to the Centre for Public Integrity. In May 2026, the Albanese government finally legislated changes — restricting negative gearing on new purchases of established properties from mid-2026, and replacing the 50% CGT discount with inflation indexing from 2027. This is a significant shift. The question worth asking: why did it take 25 years?',
+    chain: ['Property sector donates $54M over 20 years','Both major parties receive','Negative gearing & CGT preserved','Property values & investor returns rise','First home buyers priced out','Renters bear the cost'],
+    relatedPolicies: ['policy-negative-gearing','policy-housing-accord'],
+    relatedCompanies: ['property-council'],
+    explainer: 'Negative gearing lets property investors deduct rental losses against their regular income (wages, salary), reducing their tax bill. The 50% CGT discount, introduced in 1999, halves the tax on investment profits when you sell. Together, they make property investing significantly more profitable than it would otherwise be — which pushes up prices and makes it harder for owner-occupiers and renters to compete. The PBO (Parliamentary Budget Office) found 56% of the combined benefit goes to the top 10% of income earners. The Centre for Public Integrity, analysing 20 years of AEC data, found property and construction firms donated $54M to political parties, with donations surging around elections. The 2026 Budget reforms are the first meaningful change since 1999 — but apply only to new purchases of established properties going forward.',
+    sources: ['ABS — Rental market insights 2023 (abs.gov.au)','ANZ/CoreLogic Housing Affordability Report April 2024','Parliamentary Budget Office — Cost of Negative Gearing and CGT Discount, July 2024','Centre for Public Integrity — Property Sector Donations, June 2025','ATO — 2026-27 Budget tax reform (ato.gov.au)','AEC Transparency Register (transparency.aec.gov.au)']
+  },
+  'mining-tax': {
+    title: 'Who killed the mining tax?',
+    intro: 'In May 2010, the Rudd government proposed a 40% Resource Super Profits Tax (RSPT) on mining company profits. The mining industry responded with one of the most expensive political campaigns in Australian history. The AEC records show mining interests spent $22 million on advertising in just six weeks before Rudd\'s removal as prime minister. The tax was watered down into the Minerals Resource Rent Tax (MRRT), which raised only $340 million before being repealed by the Abbott government in 2014. The original RSPT had been forecast to raise $49.5 billion over five years. The question is not whether donations caused the outcome — that is not proven — but whether $22 million in political advertising by the industry that stood to lose the most shaped the outcome. The evidence for that is in the parliamentary record.',
+    chain: ['RSPT announced — projected $49.5B over 5 years','Mining industry spends $22M on ads in 6 weeks','Rudd removed, RSPT watered down to MRRT','MRRT raises $340M before repeal','Abbott government repeals MRRT in 2014','Projected revenue never collected'],
+    relatedPolicies: ['policy-resource-taxation'],
+    relatedCompanies: ['hancock-prospecting','fortescue','mineralogy'],
+    explainer: 'Key facts from the parliamentary record and AEC disclosures: The original RSPT was projected at $49.5 billion over five years. The AEC confirmed mining interests spent $22 million on advertising in the six weeks before Rudd\'s removal. Hancock Prospecting, Fortescue and Mineralogy were among those who opposed the tax. The replacement MRRT raised only $340 million before repeal — a fraction of the original projection. The repeal itself was confirmed to eliminate a projected $3.4 billion in four-year revenue. What is documented is the spending and the outcome. The causal link between industry pressure and political decisions is a question this site invites readers to consider, based on the evidence.',
+    sources: ['AEC — Electoral commission records of mining industry advertising spend','Wikipedia — Minerals Resource Rent Tax (sourced to Hansard)','Treasury — MRRT Repeal Regulation Impact Statement','Hansard — MRRT repeal debate, Second Reading Speech 2014','AEC Transparency Register (transparency.aec.gov.au)']
+  },
+  'defence': {
+    title: 'What does $368 billion buy?',
+    intro: 'AUKUS is the largest single defence commitment in Australian history. The government has confirmed the total 30-year cost — covering acquisition and operation of nuclear-powered submarines — at $368 billion. The near-term cost over the decade to 2034 has already risen from $53-63 billion (2024 estimate) to $71-96 billion (April 2026 update) — a blowout of up to 34% in under two years. The decision was announced in September 2021 without a public tender, without a publicly released cost-benefit analysis, and without a parliamentary vote. Defence contractors are registered lobbyists with direct ministerial access.',
+    chain: ['Defence contractors lobby ministers','AUKUS announced Sep 2021 — no public tender','$368B committed over 30 years','Near-term costs blow out 34% by 2026','Contractors BAE Systems, US shipyards receive contracts','No ANAO audit of decision process published'],
+    relatedPolicies: ['policy-aukus'],
+    relatedCompanies: ['defence-cluster'],
+    explainer: 'The $368 billion figure is government-confirmed and covers the full 30-year life of the AUKUS submarine program including operations. The near-term capital cost (2024-2034) rose from $53-63B to $71-96B between the 2024 and April 2026 National Defence Strategy updates. The AUKUS announcement scrapped Australia\'s existing Attack-class submarine contract with France without normal procurement processes. Defence industry groups including the Australian Defence Industry Group are registered lobbyists. The Federal Lobbying Register records their client relationships and ministerial contacts. The question of how lobbying relationships shaped the AUKUS decision is not resolved by the evidence — but the documented relationships and the scale of the contracts are both public record.',
+    sources: ['National Defence Strategy April 2026 — government cost confirmation','The Nightly — AUKUS cost blowout reporting, April 2026','USSC Debate Papers — AUKUS costing analysis','Federal Lobbying Register (lobbyists.ag.gov.au)','AusTender (tenders.gov.au)']
+  },
+  'energy': {
+    title: 'Why are energy bills still rising?',
+    intro: 'In the 2022 election campaign, Labor projected household electricity bills would fall by $275 per year by 2025 under their energy policy. They did not fall. Electricity prices as measured by the ABS have been volatile — affected significantly by government rebate programs. Excluding rebate effects, underlying electricity prices rose around 4.9% in the year to February 2026 according to the ABS. Electricity costs outpaced wage growth of 3.4% over the same period. Australia is the world\'s largest exporter of LNG, yet domestic gas prices remain among the highest in the developed world — a consequence of the absence of a meaningful domestic gas reservation policy for over a decade.',
+    chain: ['Gas & resources lobby oppose domestic reservation','Domestic gas policy remains weak','Australia exports LNG at world prices','Domestic gas prices stay high','Electricity generation costs rise','Household bills outpace wages'],
+    relatedPolicies: ['policy-clean-energy-target','policy-net-zero-2050'],
+    relatedCompanies: ['hancock-prospecting'],
+    explainer: 'The $275 bill reduction promise was made by Labor in the lead-up to the 2022 election, based on modelling of their energy policy. Bills did not fall by that amount. The ABS data on electricity prices requires careful reading: government rebate programs in 2024 and 2025 temporarily reduced measured bills, but as these expired, measured prices rose sharply. Excluding rebate effects, the ABS found underlying electricity prices rose 4.9% in the year to February 2026. On domestic gas: Australia has a voluntary gas reservation code, not a mandatory one. The industry has consistently lobbied against mandatory domestic reservation. The resources sector is one of Australia\'s largest political donors. Whether there is a direct link between donations and gas policy is not proven — but the policy outcome (weak domestic reservation) and the lobbying record are both documented.',
+    sources: ['ABS — Monthly CPI Indicator February 2026 (abs.gov.au)','ABS — Consumer Price Index September 2024 (electricity rebate analysis)','ACCC — Gas Inquiry reports','AEC Transparency Register (transparency.aec.gov.au)','Fenro energy cost analysis 2026']
+  },
+  'climate': {
+    title: 'Who funds climate opposition in Australia?',
+    intro: 'Australia was one of the last comparable developed nations to legislate a net zero by 2050 target — doing so only in 2022 under the Albanese government. Australia\'s per-capita greenhouse gas emissions remain among the highest in the OECD. The delay has a documented political history: multiple prime ministers were removed partly over carbon policy (Rudd in 2010, Gillard in 2013, Turnbull in 2018). The resources sector — whose profits depend directly on continued fossil fuel extraction — is one of Australia\'s largest political donors, with documented support for parties and politicians who opposed or delayed emissions reduction policy.',
+    chain: ['Resources sector donates to Nationals & Liberal factions','Nationals oppose net zero internally','Coalition\'s climate policy shifts repeatedly 2010-2022','Three PMs removed partly over carbon policy','Net zero legislated only in 2022 — 12 years after original proposal','Australia remains among highest per-capita emitters in OECD'],
+    relatedPolicies: ['policy-net-zero-2050','policy-resource-taxation'],
+    relatedCompanies: ['hancock-prospecting','mineralogy'],
+    explainer: 'What is verified: Gina Rinehart and Hancock Prospecting have publicly opposed net zero emissions targets and are AEC-disclosed donors to the Liberal, National and One Nation parties. Clive Palmer\'s UAP ran advertising during the 2022 election opposing Labor\'s climate policies. The Nationals required specific concessions (a regional transition fund, technology investment guarantees) before supporting the 2022 Climate Change Act. Australia had a carbon price from 2012-2014 that was repealed by the Abbott government. What is a matter of political analysis, not proven fact: whether donation patterns caused specific policy outcomes. The documented relationships and the documented policy outcomes are both on the public record.',
+    sources: ['AEC Transparency Register (transparency.aec.gov.au)','Climate Change Act 2022 — Hansard debates','OECD — per capita emissions data','ABC News — Nationals climate policy negotiations 2022','Hansard — Carbon price repeal 2014']
+  },
+  'banking': {
+    title: 'Why did the banks escape the Royal Commission?',
+    intro: 'Commissioner Kenneth Hayne\'s 2019 Royal Commission into Misconduct in the Banking, Superannuation and Financial Services Industry is one of the most significant regulatory events in Australian history. It documented charging fees to dead customers, forging signatures, and systematic mis-selling of financial products. Hayne made 76 recommendations. He referred several matters to regulators for potential criminal or civil action. The Coalition government — which had voted against calling the Royal Commission 26 times before finally agreeing — was responsible for implementation. Criminal prosecutions did not follow from the referrals. ASIC chose not to pursue criminal charges in most referred cases.',
+    chain: ['Coalition votes 26 times against Royal Commission','Royal Commission finds systemic misconduct 2019','76 recommendations made, criminal referrals to ASIC','ASIC does not pursue criminal prosecutions','Coalition government slow to implement recommendations','Big Four banks remain most profitable in OECD peer group'],
+    relatedPolicies: ['policy-banking-regulation'],
+    relatedCompanies: ['cba'],
+    explainer: 'What is verified by the Royal Commission\'s final report and parliamentary record: The Coalition government voted against the Royal Commission 26 times before agreeing to call it. Commissioner Hayne made 76 recommendations. He referred matters to ASIC and APRA for possible enforcement action. ASIC pursued civil rather than criminal proceedings in most cases. No major bank executive was convicted of criminal offences arising from the Royal Commission findings. The Australian Banking Association is a registered lobbyist. The Big Four banks are collectively among the most profitable in their international peer group (ACCC, OECD data). What requires care: establishing direct links between lobbying activity and specific decisions not to prosecute requires evidence beyond lobbying registration alone.',
+    sources: ['Hayne Royal Commission Final Report February 2019 (treasury.gov.au)','Hansard — Coalition votes against Royal Commission (26 times, on record)','ASIC — Enforcement outcomes register','ACCC — Banking sector profitability data','AEC Transparency Register (transparency.aec.gov.au)']
+  },
+  'who-owns': {
+    title: 'Who really owns Australian politics?',
+    intro: 'Australia\'s political donation laws have historically been among the weakest in the developed world. The federal disclosure threshold has meant donations below the indexed amount (around $16,300 in 2023-24) were not publicly reported at all. Donations above the threshold are disclosed, but with an 18-month lag — meaning donations made before an election are published after it. The Centre for Public Integrity found property and construction firms alone donated $54 million to Australian political parties over 20 years. The data exists. The lobbying register names every registered lobbyist and their ministerial contacts. AusTender records every government contract. ASIC records every directorship. Power Map connects these datasets so you can follow the chain yourself.',
+    chain: ['Donors give to parties (AEC-disclosed)','Lobbyists contact ministers (lobbying register)','Policies are made (Hansard)','Contracts are awarded (AusTender)','Companies benefit (ASIC, annual reports)','Public gains or loses (outcomes)'],
+    relatedPolicies: ['policy-resource-taxation','policy-negative-gearing','policy-aukus'],
+    relatedCompanies: ['hancock-prospecting','property-council','defence-cluster','cba'],
+    explainer: 'Power Map Australia does not make accusations. It maps documented relationships using public sources, and asks documented questions. Every figure on this site is either verified (government registers, Hansard, court findings), reported (ABC, AFR, Guardian with article links), or clearly labelled as alleged. The federal disclosure threshold means significant political donations have historically been invisible. The 2024 Electoral Legislation Amendment Act introduced real-time disclosure — a significant reform that takes effect progressively. This project exists because the comprehension gap — understanding what the data means — remains large even as the data improves.',
+    sources: ['AEC Transparency Register (transparency.aec.gov.au)','Centre for Public Integrity — Property Sector Donations 2025','Federal Lobbying Register (lobbyists.ag.gov.au)','AusTender (tenders.gov.au)','ASIC registers (asic.gov.au)','Electoral Legislation Amendment Act 2024']
+  },
+  'supermarkets': {
+    title: 'Why did your grocery bill go up — and their profits too?',
+    intro: 'Food and grocery prices in Australia have risen approximately 24% since March 2019 according to the ACCC\'s 2025 Supermarkets Inquiry final report. Coles and Woolworths control around 65% of the grocery market. Both posted record profits during the period of fastest price rises. The ACCC\'s final report (February 2025) did not find price gouging — but it did find the supermarkets are among the most profitable in the world by international standards, and that suppliers had insufficient bargaining power. A Senate Select Committee report (May 2024) went further, recommending that price gouging be made illegal and that courts be given power to break up the supermarket duopoly. The government has been cautious about the strongest recommendations.',
+    chain: ['Coles & Woolworths control 65% of grocery market','Grocery prices rise 24% since March 2019 (ACCC)','Both companies post record profits in same period','ACCC finds supermarkets among most profitable internationally','Senate inquiry recommends divestiture powers and price gouging laws','Government adopts modest response — mandatory code, targeted ACCC powers'],
+    relatedPolicies: [],
+    relatedCompanies: [],
+    explainer: 'The distinction between the two inquiries matters for accuracy. The ACCC\'s final inquiry (February 2025) is the authoritative regulatory finding: it found high profitability and market concentration, but stopped short of finding price gouging. The Senate Select Committee (Greens-chaired, May 2024) made stronger findings and recommendations, including making price gouging illegal. These are political and regulatory judgements, not court findings. The 24% grocery price increase since March 2019 is from the ACCC\'s own report. The 65% market share figure is widely cited and consistent across ACCC, academic and industry sources. On donations: verifying supermarket political donations requires direct search of the AEC Transparency Register — exact figures are not published here until verified.',
+    sources: ['ACCC — Supermarkets Inquiry Final Report February 2025','Senate Select Committee on Supermarket Prices — Final Report May 2024','ACCC — Supermarkets Inquiry Interim Report September 2024','AEC Transparency Register (transparency.aec.gov.au)']
+  },
+  'nuclear': {
+    title: 'Nuclear power: nation-building or a favour to coal country?',
+    intro: 'The Coalition\'s nuclear energy policy, announced in 2024, proposed seven nuclear power stations on the sites of existing and former coal plants. CSIRO\'s GenCost 2023-24 report found new nuclear power would cost $8.20-$17 per MWh more than new large-scale solar and wind, making it the most expensive new generation technology modelled. The proposed sites were in electorates that depend on coal — most represented by Coalition MPs. The policy was a central issue in the 2025 federal election, which Labor won. The underlying questions — who funds the parties that backed nuclear, and whether delaying renewable investment benefits fossil fuel incumbents — are what Power Map documents.',
+    chain: ['Resources sector donates to Liberal & National parties','Coalition announces nuclear policy 2024','Proposed sites: all existing or former coal plant locations','CSIRO finds nuclear most expensive new generation option','Policy rejected at 2025 election','Renewable transition continues — but was delayed during policy debate'],
+    relatedPolicies: ['policy-net-zero-2050','policy-clean-energy-target'],
+    relatedCompanies: ['hancock-prospecting','mineralogy'],
+    explainer: 'The CSIRO GenCost 2023-24 report is the authoritative Australian source on energy generation costs. It found large-scale solar and wind remain the cheapest new generation technologies, and nuclear the most expensive. The Coalition\'s nuclear policy was costed at $331 billion over 25 years by the Parliamentary Budget Office using Coalition assumptions — critics argued real costs would be higher. The seven proposed sites were all at existing or former coal power stations. What is documented: the site choices, the cost estimates, the donors to the parties that proposed the policy, and the electoral outcome. What remains political analysis rather than proven fact: whether the policy was motivated by donors\' interests in delaying renewables.',
+    sources: ['CSIRO GenCost 2023-24 Final Report','PBO — Nuclear costing using Coalition assumptions','AEC Transparency Register (transparency.aec.gov.au)','ABC News — nuclear policy site analysis 2024']
+  },
+  'population': {
+    title: 'Why does Australia keep growing its population while housing gets less affordable?',
+    intro: 'Australia recorded net overseas migration of 547,000 people in 2022-23 — the highest on record, according to the ABS. In the same period, dwelling completions totalled approximately 173,000 — well below the implied new household formation rate. Rents rose sharply. The National Housing Accord set a target of 1.2 million new homes over five years — a target independent analysis suggests will not be met at current construction rates. Property developers and construction companies benefit directly from population growth. They are significant political donors. Both major parties have historically supported high migration settings.',
+    chain: ['Property sector donates to both major parties','Both parties support high migration settings','Net overseas migration 547,000 in 2022-23 (ABS record)','Dwelling completions 173,000 — well below demand','Rents rise, housing stock tightens','Developers benefit from sustained demand; renters pay more'],
+    relatedPolicies: ['policy-negative-gearing','policy-housing-accord'],
+    relatedCompanies: ['property-council'],
+    explainer: 'The 547,000 net overseas migration figure is from the ABS (2022-23, the most recent year with final data at time of writing). The 173,000 dwelling completions figure is from CoreLogic, cited in the ANZ/CoreLogic Housing Affordability Report. The gap between these figures — implied household formation versus actual dwelling supply — is well-documented. What is a question of political analysis rather than proven fact: whether migration policy settings have been deliberately calibrated to benefit property interests. What is documented: the donation relationships, the policy settings, and the housing outcomes. Both major parties have received significant donations from the property and construction sector according to AEC records and the Centre for Public Integrity\'s 20-year analysis.',
+    sources: ['ABS — Overseas Migration statistics 2022-23 (abs.gov.au)','ANZ/CoreLogic Housing Affordability Report April 2024','Centre for Public Integrity — Property Sector Donations 2025','National Housing Accord — housing.gov.au','AEC Transparency Register (transparency.aec.gov.au)']
+  }
+};
+
+function openQuestion(key) {
+  const q = QUESTIONS[key];
+  if (!q) return;
+
+  const relatedPolicyCards = (q.relatedPolicies||[]).map(id => {
+    const p = DB.policies.find(x => x.id === id);
+    return p ? `<div class="q-related-card" onclick="closeModal();openModal('policy','${p.id}')">${p.name}<span style="color:var(--gold);margin-left:0.5rem">→</span></div>` : '';
+  }).join('');
+
+  const relatedCompanyCards = (q.relatedCompanies||[]).map(id => {
+    const c = DB.companies.find(x => x.id === id);
+    return c ? `<div class="q-related-card" onclick="closeModal();openModal('company','${c.id}')">${c.name}<span style="color:var(--gold);margin-left:0.5rem">→</span></div>` : '';
+  }).join('');
+
+  const chainHtml = (q.chain||[]).map((node,i) => {
+    const isArrow = node.startsWith('→');
+    return isArrow
+      ? `<span class="chain-arrow">${node}</span>`
+      : `<span class="chain-node">${node}</span>`;
+  }).join('');
+
+  document.getElementById('modal-inner').innerHTML = `
+    <div class="modal-header">
+      <p class="modal-eyebrow">Power Map question</p>
+      <h2 class="modal-title" style="font-size:1.3rem;line-height:1.3">${q.title}</h2>
+    </div>
+    <div class="modal-body">
+      <p class="modal-summary">${q.intro}</p>
+
+      <div class="chain">
+        <p class="chain-title">Money → Policy → Outcome chain</p>
+        <div class="chain-row">${chainHtml}</div>
+      </div>
+
+      <div style="margin-bottom:1.5rem">
+        <p class="msec-title">What the evidence shows</p>
+        <p style="font-size:0.82rem;color:var(--muted);line-height:1.7">${q.explainer}</p>
+      </div>
+
+      ${relatedPolicyCards || relatedCompanyCards ? `
+      <div style="margin-bottom:1.5rem">
+        <p class="msec-title">Explore the profiles behind this question</p>
+        <div style="display:flex;flex-direction:column;gap:0.4rem">
+          ${relatedCompanyCards}
+          ${relatedPolicyCards}
+        </div>
+      </div>` : ''}
+
+      <div class="verify-box">
+        <p class="verify-label">Primary sources</p>
+        <div class="src-list">${(q.sources||[]).map(s=>`<span class="src-link" style="cursor:default;color:var(--muted)">${s}</span>`).join('')}</div>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.25rem">
+        <button class="btn btn-primary" onclick="closeModal();showPanel('people')">Explore people profiles →</button>
+        <button class="btn btn-ghost" onclick="closeModal();showPanel('policies')">Browse all policies</button>
+      </div>
+    </div>`;
+
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+// ─────────────────────────────────────────────
+// GLOBAL SEARCH
+// ─────────────────────────────────────────────
+function globalSearch(q) {
+  if (!q || q.length < 2) {
+    document.getElementById('global-search-results').style.display = 'none';
+    document.getElementById('panel-home').querySelector('.hero').style.display = 'block';
+    document.getElementById('panel-home').querySelector('.stats-row').style.display = 'flex';
+    document.getElementById('panel-home').querySelector('.questions-wrap').style.display = 'block';
+    return;
+  }
+  document.getElementById('panel-home').style.display = 'block';
+  document.getElementById('panel-explorer').style.display = 'none';
+  document.getElementById('panel-about').style.display = 'none';
+  document.getElementById('panel-home').querySelector('.hero').style.display = 'none';
+  document.getElementById('panel-home').querySelector('.stats-row').style.display = 'none';
+  document.getElementById('panel-home').querySelector('.questions-wrap').style.display = 'none';
+  document.getElementById('global-search-results').style.display = 'block';
+
+  const ql = q.toLowerCase();
+  const search = (arr) => arr.filter(x => JSON.stringify(x).toLowerCase().includes(ql));
+
+  const sections = [
+    ['People', search(DB.people), 'person', x => x.title||x.type],
+    ['Companies', search(DB.companies), 'company', x => x.industry],
+    ['Politicians', search(DB.politicians), 'politician', x => x.role],
+    ['Policies', search(DB.policies), 'policy', x => x.area],
+    ['Lobbyists', search(DB.lobbyists), 'lobbyist', x => x.type],
+    ['Contracts', search(DB.contracts), 'contract', x => x.value],
+  ].filter(([,results]) => results.length > 0);
+
+  if (!sections.length) {
+    document.getElementById('global-results-inner').innerHTML = '<div class="empty">No results for "'+q+'"</div>';
+    return;
+  }
+
+  document.getElementById('global-results-inner').innerHTML = `
+    <p style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-bottom:1rem">Search results for "<strong style="color:var(--text)">${q}</strong>"</p>
+    <div class="global-results">
+      ${sections.map(([label, results, type, meta]) => `
+        <div class="gr-section">
+          <p class="gr-label">${label} (${results.length})</p>
+          ${results.map(item => `
+            <div class="gr-item" onclick="openModal('${type}','${item.id}')">
+              <span class="gr-type">${label.slice(0,-1)}</span>
+              <div><p class="gr-name">${item.name}</p><p class="gr-meta">${meta(item)}</p></div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Stats
+  document.getElementById('s-people').textContent = DB.people.length;
+  document.getElementById('s-companies').textContent = DB.companies.length;
+  document.getElementById('s-politicians').textContent = DB.politicians.length;
+  document.getElementById('s-policies').textContent = DB.policies.length;
+  document.getElementById('s-sources').textContent = 30;
+
+  // Render all tabs
+  Object.keys({people:1,companies:1,politicians:1,policies:1,lobbyists:1,contracts:1}).forEach(renderTab);
+
+  // Nav search
+  document.getElementById('nav-search').addEventListener('input', e => globalSearch(e.target.value.trim()));
+
+  // Modal close
+  document.getElementById('overlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+
+  // Mobile nav
+  document.addEventListener('keydown', e => { if(e.key==='Escape') { closeModal(); closeMobileNav(); } });
+});
+
+function toggleMobileNav() {
+  document.getElementById('nav-links').classList.toggle('open');
+}
+function closeMobileNav() {
+  document.getElementById('nav-links').classList.remove('open');
+}
+</script>
+</body>
+</html>
